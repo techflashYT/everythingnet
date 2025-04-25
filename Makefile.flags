@@ -1,0 +1,85 @@
+#
+# Platform specific CFLAGS
+#
+# Copyright (C) 2025 Techflash
+
+# force a sane printf for some platforms
+sane_printf_flags := -Dvprintf=sane_vprintf \
+-Dvsnprintf=sane_vsnprintf \
+-Dvsprintf=sane_vsprintf \
+-Dvfctprintf=sane_vfctprintf \
+-Dprintf=sane_printf \
+-Dsprintf=sane_sprintf \
+-Dsnprintf=sane_snprintf \
+-Dfctprintf=sane_fctprintf
+
+ifeq ($(CONFIG_PLAT_NEEDS_INTERNAL_PRINTF),y)
+# requires at least gnu99 to build properly
+CFLAGS += $(sane_printf_flags) -std=gnu99
+endif
+
+ifeq ($(CONFIG_NINTENDO_PPC_COMMON),y)
+PREFIX	:=	powerpc-eabi-
+NEED_DKPRO = 1
+
+# set up includes
+CFLAGS += -I$(DEVKITPRO)/libogc/include
+
+# basic hardware flags
+CFLAGS += -DGEKKO -mcpu=750 -meabi -mhard-float
+endif
+
+ifeq ($(CONFIG_PLAT_GCN),y)
+CFLAGS += -mogc
+LDLIBS += -L$(DEVKITPRO)/libogc/lib/cube -logc -lm
+endif
+
+ifeq ($(CONFIG_PLAT_WII),y)
+CFLAGS += -mrvl
+LDLIBS += -L$(DEVKITPRO)/libogc/lib/wii -lwiiuse -lbte -logc -lm
+endif
+
+ifeq ($(CONFIG_PLAT_SWITCH),y)
+PREFIX     := aarch64-none-elf-
+NEED_DKPRO := 1
+ARCHFLAGS  := -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE
+CFLAGS     += -ffunction-sections $(ARCHFLAGS) -D__SWITCH__a -I$(DEVKITPRO)/portlibs/switch/include -I$(DEVKITPRO)/libnx/include
+LDFLAGS    += -g $(ARCHFLAGS) -specs=$(DEVKITPRO)/libnx/switch.specs
+LDLIBS     += -L$(DEVKITPRO)/libnx/lib -lnx
+post_link_cmd := elf2nro bin/everythingnet_unstripped bin/everythingnet.nro
+endif
+
+ifeq ($(NEED_DKPRO),1)
+ifeq ($(strip $(DEVKITPRO)),)
+$(error "Please set DEVKITPRO in your environment. export DEVKITPRO=<path to>devkitPro)
+endif
+
+export AS	:=	$(PREFIX)as
+export CC	:=	$(PREFIX)gcc
+export CXX	:=	$(PREFIX)g++
+export AR	:=	$(PREFIX)gcc-ar
+export OBJCOPY	:=	$(PREFIX)objcopy
+export STRIP	:=	$(PREFIX)strip
+export NM	:=	$(PREFIX)gcc-nm
+export RANLIB	:=	$(PREFIX)gcc-ranlib
+endif
+
+ifeq ($(CONFIG_PLAT_NEEDS_INTERNAL_LIBC),y)
+CFLAGS += -I$(srctree)/plat/common/libc/include -fno-builtin
+endif
+
+ifeq ($(CONFIG_PLAT_DOS),y)
+LDFLAGS += -Wl,--allow-multiple-definition
+endif
+
+ifeq ($(CONFIG_PLAT_WINDOWS),y)
+LDFLAGS += -Wl,-obin/everythingnet_unstripped -Wl,--subsystem,console
+endif
+
+ifeq ($(CONFIG_GFX_NEEDS_LIBGL),y)
+LDLIBS += -lGL
+endif
+
+ifeq ($(CONFIG_GFX_NEEDS_LIBX11),y)
+LDLIBS += -lX11
+endif

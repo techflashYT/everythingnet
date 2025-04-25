@@ -1,0 +1,5 @@
+config NINTENDO_PPC_COMMON
+	bool
+	default n
+	#select PPC32
+	#select PLAT_NEEDS_INTERNAL_PRINTF

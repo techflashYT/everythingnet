@@ -1,0 +1,177 @@
+config PLAT_SUPPORTS_HOST
+	bool
+	default n
+
+config PLAT_SUPPORTS_DISPLAY
+	bool
+	default n
+
+config PLAT_SUPPORTS_SOUND
+	bool
+	default n
+
+config PLAT_SUPPORTS_INPUT
+	bool
+	default n
+
+config PLAT_SUPPORTS_REL_INPUT
+	bool
+	default n
+
+config PLAT_SUPPORTS_ABS_INPUT
+	bool
+	default n
+
+choice
+	prompt "Platform selection"
+	default PLAT_LINUX
+	help
+	  Selects the desired platform to build EverythingNet for.
+
+	config PLAT_LINUX
+		bool "Linux"
+		select PLAT_SUPPORTS_HOST
+		select PLAT_SUPPORTS_DISPLAY
+		select PLAT_SUPPORTS_SOUND
+		select PLAT_SUPPORTS_INPUT
+		select PLAT_SUPPORTS_REL_INPUT
+		select PLAT_SUPPORTS_ABS_INPUT
+		select PLAT_POSIX_LIKE
+		help
+		  Build for targetting a GNU/Linux system.  Can be cross
+		  compiled like normal, or natively compiled if your host
+		  is also Linux.
+
+	if (ARCH=x86 || ARCH=x86_64 || ARCH=arm64 || ARCH=arm)
+	config PLAT_WINDOWS
+		bool "Microsoft Windows"
+		select PLAT_SUPPORTS_HOST
+		select PLAT_SUPPORTS_DISPLAY
+		select PLAT_SUPPORTS_SOUND
+		select PLAT_SUPPORTS_INPUT
+		select PLAT_SUPPORTS_REL_INPUT
+		select PLAT_SUPPORTS_ABS_INPUT
+		help
+		  Build for Microsoft Windows, using MINGW.  Building
+		  via Visual Studio / MSVC is not supported.  Building
+		  natively on Windows using MSYS2, Cygwin, or similar,
+		  is not tested, but may work.  Can be built using
+		  MINGW GCC or Clang (you will need to pass --target
+		  manually for the latter).
+	endif
+
+	if ARCH=x86
+	config PLAT_DOS
+		bool "MS-DOS or compatible (FreeDOS, PC-DOS, DR-DOS, etc)"
+		select PLAT_SUPPORTS_DISPLAY
+		select PLAT_SUPPORTS_SOUND
+		select PLAT_SUPPORTS_INPUT
+		select PLAT_SUPPORTS_REL_INPUT
+		select PLAT_SUPPORTS_ABS_INPUT
+		help
+		  Support running on MS-DOS or compatible operating systems.
+		  Sound playback requires a SoundBlaster 16 or compatible
+		  sound card.  Runs on any system with at least 640K of memory.
+		  More memory may be required for complex arrangements of
+		  multiple application windows.  Requires networking driver
+		  to be installed to function. Runs on any 386 or later CPU.
+		  Requires a CGA, EGA, or VGA or compatible graphics adapter
+		  for graphics output beyond the text-mode startup banner.
+	endif
+
+	if ARCH=powerpc
+	config PLAT_GCN
+		bool "Nintendo GameCube (with libogc)"
+		select NINTENDO_PPC_COMMON
+		select PLAT_SUPPORTS_DISPLAY
+		select PLAT_SUPPORTS_SOUND
+		select PLAT_SUPPORTS_INPUT
+		select PLAT_SUPPORTS_REL_INPUT
+		help
+		  Build targetting the Nintendo GameCube, using libogc.  It
+		  will output both an ELF, and a DOL, suitable for booting via
+		  any homebrew loader, such as Swiss.  EverythingNet requires
+		  the Nintendo GameCube Broadband Adapter (DOL-015) to be
+		  present in order for EverythingNet function correctly.
+	config PLAT_WII
+		bool "Nintendo Wii (with libogc)"
+		select NINTENDO_PPC_COMMON
+		select PLAT_SUPPORTS_DISPLAY
+		select PLAT_SUPPORTS_SOUND
+		select PLAT_SUPPORTS_INPUT
+		select PLAT_SUPPORTS_REL_INPUT
+		select PLAT_SUPPORTS_ABS_INPUT
+		help
+		  Build targetting the Nintendo Wii, using libogc.  It will
+		  output both an ELF, and a DOL, suitable for booting via
+		  the Homebrew Channel.  An internet connection, either
+		  Wireless or Wired, must be set up via the connection
+		  settings on the Wii Menu in order for EverythingNet to
+		  function correctly.
+
+		  EverythingNet can also be run via the standard Linux build,
+		  targetting PowerPC, under Wii-Linux.  It will run much worse
+		  under Linux due to the lack of video acceleration.
+	config PLAT_WIIU
+		bool "Nintendo Wii U (with wut)"
+		#select PPC32
+		select PLAT_SUPPORTS_DISPLAY
+		select PLAT_SUPPORTS_SOUND
+		select PLAT_SUPPORTS_INPUT
+		select PLAT_SUPPORTS_REL_INPUT
+		select PLAT_SUPPORTS_ABS_INPUT
+
+	config PLAT_PS3
+		bool "Sony PlayStation 3 (with PSL1GHT)"
+		#select PPC64
+		select PLAT_SUPPORTS_DISPLAY
+		select PLAT_SUPPORTS_SOUND
+		select PLAT_SUPPORTS_INPUT
+		select PLAT_SUPPORTS_REL_INPUT
+	endif
+
+	if ARCH=arm64
+	config PLAT_SWITCH
+		bool "Nintendo Switch (with libnx)"
+		select PLAT_SUPPORTS_DISPLAY
+		select PLAT_SUPPORTS_SOUND
+		select PLAT_SUPPORTS_INPUT
+		select PLAT_SUPPORTS_REL_INPUT
+		select PLAT_SUPPORTS_ABS_INPUT
+		select PLAT_NEEDS_FLUSH_OUTPUT
+		help
+		  Build EverythingNet targetting the Nintendo Switch running
+		  Horizon OS, using libnx.  An internet connection must be
+		  set up in the system settings on the HOME Menu in order
+		  for EverythingNet to function properly.
+
+		  EverythingNet should also work targetting Linux or Android
+		  on the Nintendo Switch, via L4S/Linux 4 Switch, as well as
+		  LineageOS, respectively.
+	endif
+
+endchoice
+
+menu "Common platform configuration"
+source "plat/common/Kconfig"
+endmenu
+
+menu "Platform-specific configuration"
+
+# traditional platforms
+source "plat/linux/Kconfig"
+source "plat/windows/Kconfig"
+source "plat/dos/Kconfig"
+
+# game consoles
+## Nintendo
+source "plat/nintendo-ppc-common/Kconfig"
+source "plat/gcn/Kconfig"
+source "plat/wii/Kconfig"
+source "plat/wiiu/Kconfig"
+source "plat/switch/Kconfig"
+
+## Sony
+source "plat/ps3/Kconfig"
+
+endmenu

@@ -1,0 +1,8 @@
+=== PLAT_Info ===
+
+Contains info about the hardware and software that EverythingNet is currently running on.
+It may contain a mix of both runtime-filled and statically set values, all static, or all runtime-filled.
+The following is expected of it to be true after `PLAT_Init()` returns:
+- No strings should be NULL
+- No dummy / placeholder values should be present; if something is unknown, or not applicable to your platform, it should be set as such
+- It should contain and accurate representation of the current operating environment

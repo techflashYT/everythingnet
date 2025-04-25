@@ -1,0 +1,7 @@
+menu "Application Settings"
+
+config FOO
+	bool
+	help
+	  Some Kconfig shit here
+endmenu

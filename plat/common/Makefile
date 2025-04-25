@@ -1,0 +1,2 @@
+obj-$(CONFIG_PLAT_NEEDS_INTERNAL_PRINTF) += sane_printf.o
+obj-$(CONFIG_PLAT_NEEDS_INTERNAL_LIBC)   += libc/

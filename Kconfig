@@ -1,0 +1,4 @@
+mainmenu "EverythingNet/$(ARCH) $(APP_VERSION) Configuration"
+
+source "app/Kconfig"
+source "plat/Kconfig"

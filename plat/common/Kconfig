@@ -1,0 +1,56 @@
+config PLAT_POSIX_LIKE
+	bool
+	default n
+
+config PLAT_NEEDS_INTERNAL_LIBC
+	bool
+	default n
+	select PLAT_NEEDS_INTERNAL_PRINTF
+
+config PLAT_NEEDS_INTERNAL_PRINTF
+	bool
+	default n
+
+config PLAT_NEEDS_FAKE_64BIT_MATH
+	bool
+	default n
+
+config PLAT_NEEDS_FLUSH_OUTPUT
+	bool
+	default n
+
+config GFX_NEEDS_LIBGL
+	bool
+	default n
+
+config GFX_NEEDS_LIBX11
+	bool
+	default n
+
+config GFX_GLX
+	bool "Xorg/GLX graphics support"
+	default y
+	depends on PLAT_POSIX_LIKE
+	select GFX_NEEDS_LIBGL
+	select GFX_NEEDS_LIBX11
+
+config GFX_RAW_XORG
+	bool "Direct Xorg/Xlib graphics support"
+	default y
+	depends on PLAT_POSIX_LIKE
+	select GFX_NEEDS_LIBX11
+
+config GFX_WAYLAND
+	bool "Wayland/EGL graphics support"
+	default y
+	depends on PLAT_POSIX_LIKE
+
+config GFX_DRM
+	bool "DRM/KMS graphics support"
+	default y
+	depends on PLAT_POSIX_LIKE
+
+config GFX_FB
+	bool "Framebuffer graphics support"
+	default y
+	depends on PLAT_POSIX_LIKE

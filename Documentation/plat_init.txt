@@ -1,0 +1,14 @@
+=== PLAT_Init() ===
+
+This is your platform's initialization function.  It is the very first thing called by EverythingNet.
+`main()`'s `argc` and `argv` are passed to it.  The following state is expected after `PLAT_Init()` returns:
+- Console output via `putchar`/`puts`/`printf` is safe (even if stubbed)
+- `malloc` and `free` are safe (even if stubbed)
+- `STATE_Init()` has been called
+- `G_State.exitCallbacks.exit` has been set to a valid function pointer, and that function will not return when called
+- Attempting to communicate on the network is safe (even if stubbed, or is not garuanteed to succeed, it should not crash)
+- `PLAT_Info` has been filled out with appropriate values, and does not contain any NULL pointers
+- The graphics subsystem, if necessary, has been initialized
+- The audio subsystem, if necessary, has been initialized
+- The input subsystem, if necessary, has been initialized
+- The networking subsystem, if necessary, has been initialized

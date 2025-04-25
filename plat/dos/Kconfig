@@ -1,0 +1,5 @@
+config SB16
+	bool "SoundBlaster 16 or compatible sound support"
+	default y
+	depends on PLAT_DOS
+
