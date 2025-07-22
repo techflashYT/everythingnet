@@ -30,7 +30,7 @@ int LINUX_GatherInfo() {
 		return ret;
 
 	/* get the memory size, divide by 1024 to get KB, as the app expects */
-	PLAT_Info.memSz = sysconf(_SC_PHYS_PAGES) * sysconf(_SC_PAGE_SIZE) / 1024;
+	PLAT_Info.memSz = sysconf(_SC_PHYS_PAGES) * (sysconf(_SC_PAGE_SIZE) / 1024);
 
 	/* Get the kernel version */
 	uname(&utsname);
