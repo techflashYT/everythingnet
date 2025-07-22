@@ -37,18 +37,25 @@ extern int PLAT_Init(int argc, char *argv[]);
 
 #if defined(__i386__) || defined(__x86__) || defined(_M_IX86) || defined(__386__) || defined(__X86__) || defined(__DOS__)
 #define PLAT_STR_NATIVE PLAT_STR_X86
+#define EVRNET_CPU_X86
 #elif defined(__x86_64__)
 #define PLAT_STR_NATIVE PLAT_STR_X86_64
+#define EVRNET_CPU_X86_64
 #elif defined(__ARM__) || defined (_ARM_) || defined(__arm__) || defined(__arm)
-#define PLAT_STR_NATIVE PLAT_STR_ARMV7
+#define PLAT_STR_NATIVE PLAT_STR_ARMV7 /* FIXME: More granular? */
+#define EVRNET_CPU_ARM
 #elif defined(__AARCH64__) || defined(__aarch64__)
-#define PLAT_STR_NATIVE PLAT_STR_ARMV80
+#define PLAT_STR_NATIVE PLAT_STR_ARMV80 /* FIXME: More granular? */
+#define EVRNET_CPU_AARCH64
 #elif defined(__PPC__) && (INTPTR_MAX == INT32_MAX)
 #define PLAT_STR_NATIVE PLAT_STR_PPC32
+#define EVRNET_CPU_PPC32
 #elif defined(__PPC__) && (INTPTR_MAX == INT64_MAX) && defined(__BIG_ENDIAN__)
 #define PLAT_STR_NATIVE PLAT_STR_PPC64
+#define EVRNET_CPU_PPC64
 #elif defined(__PPC__) && (INTPTR_MAX == INT64_MAX) && !defined(__BIG_ENDIAN__) /* __LITTLE_ENDIAN__ may not specifically be defined */
 #define PLAT_STR_NATIVE PLAT_STR_PPC64LE
+#define EVRNET_CPU_PPC64LE
 #else
 #error "Unknown architecture"
 #endif
