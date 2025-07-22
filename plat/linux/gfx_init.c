@@ -49,8 +49,6 @@ int LINUX_GfxInit() {
 		else
 			printf("Unknown failure (%d) from Xorg w/ GLX\n", err);
 	}
-#else
-#error "foo"
 #endif
 
 	/* No Wayland *or* Xorg, we can't host anything */
