@@ -20,6 +20,7 @@ void NET_Init(void) {
 		perror("malloc");
 		APP_CleanupAndExit(1);
 	}
+	memset(msg, 0, CONFIG_NET_MAX_PKT_KB * 1024);
 }
 
 void NET_HandleBcast(void) {
@@ -85,11 +86,11 @@ tx:
 		APP_CleanupAndExit(1);
 	}
 
-	msg->version = EVRNET_BCAST_HDR_V1;
+	msg->version = htonl(EVRNET_BCAST_HDR_V1);
 	msg->rsrvd__padding1 = 0;
 	msg->rsrvd__padding2 = 0;
-	msg->uuid[0] = NODE_LocalUUID[0];
-	msg->uuid[1] = NODE_LocalUUID[1];
+	msg->uuid[0] = htonq(NODE_LocalUUID[0]);
+	msg->uuid[1] = htonq(NODE_LocalUUID[1]);
 	strncpy(msg->myName, NODE_LocalName, sizeof(msg->myName));
 	msg->crc = 0;
 	/* TODO: Calculate CRC */

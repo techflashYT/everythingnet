@@ -12,10 +12,13 @@
 extern uint64_t NODE_LocalUUID[2];
 
 /* Local name */
-extern char *NODE_LocalName;
+extern char NODE_LocalName[64];
 
 /* Node list */
 extern nodeList_t *NODE_NodeList;
+
+/* Initialize the node subsystem */
+extern void NODE_Init(void);
 
 /* Check for any new nodes in a broadcast message */
 extern void NODE_CheckForNewNodes(evrnet_bcast_msg_t *msg);

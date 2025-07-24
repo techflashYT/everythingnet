@@ -142,6 +142,7 @@ out:
 		ifaces = ifaces->ifa_next;
 	}
 	freeifaddrs(ifacesHead);
+	NET_Init();
 	return 0;
 }
 

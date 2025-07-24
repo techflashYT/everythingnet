@@ -18,6 +18,7 @@
 #include <evrnet/cap.h>
 #include <evrnet/state.h>
 #include <evrnet/net.h>
+#include <evrnet/node.h>
 
 int main(int argc, char *argv[]) {
 	int ret, memSz, suffixNum, i;
@@ -57,6 +58,8 @@ int main(int argc, char *argv[]) {
 	CAP_Cap2Str(PLAT_Info.cap, capStr);
 	printf("Capabilities: %s\r\n", capStr);
 	PLAT_FlushOutput();
+
+	NODE_Init();
 
 	/* main loop */
 	while (keepRunning) {

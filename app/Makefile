@@ -1,1 +1,1 @@
-obj-y += main.o cap.o exit.o state.o net.o
+obj-y += main.o cap.o exit.o state.o net.o node.o
