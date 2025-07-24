@@ -1,3 +1,4 @@
+#include "evrnet/node.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -43,6 +44,7 @@ int LINUX_GatherInfo() {
 
 	strcpy(PLAT_Info.os, "Linux ");
 	strncat(PLAT_Info.os, utsname.release, 128 - 7); /* 128 - "Linux " */
+	strncpy(NODE_LocalName, utsname.nodename, sizeof(NODE_LocalName));
 
 	ret = LINUX_GatherCPUInfo();
 	if (ret)

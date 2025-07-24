@@ -39,4 +39,44 @@ extern void NODE_ListToNative(void);
 extern void NODE_ListToBE(void);
 #endif
 
+#define ALIGN4(x) x + (4 - ((uintptr_t)x % 4)) % 4
+#define ALIGN8(x) x + (8 - ((uintptr_t)x % 8)) % 8
+
+
+#define ENTRY_SIZE(x) ((uint16_t *)x)
+#define ENTRY_NUM_IP(x) (((uint8_t *)((uintptr_t)x + 2)))
+#define ENTRY_NODE_NAME(x) ((char *)((uintptr_t)x + 3))
+#define ENTRY_NODE_IPS(x) \
+((uint32_t *)( \
+	ALIGN4( \
+		(uintptr_t)(ENTRY_NODE_NAME(x)) + strlen(ENTRY_NODE_NAME(x)) \
+	) \
+))
+#define ENTRY_NODE_UUID(x) ((uint64_t *)( \
+	ALIGN8( \
+		(uintptr_t)(ENTRY_NODE_IPS(x)) + ( \
+			*ENTRY_NUM_IP(x) * sizeof(uint32_t) \
+		) \
+	) \
+))
+#define ENTRY_NODE_EVRNET_VER(x) ((char *)( \
+	((uint8_t *)ENTRY_NODE_UUID(x)) + (sizeof(uint64_t) * 2) \
+))
+
+#define ENTRY_NODE_PLATINFO(x) ((platInfo_t *)( \
+	ALIGN4( \
+		((uint8_t *)ENTRY_NODE_EVRNET_VER(x)) + strlen(ENTRY_NODE_EVRNET_VER(x)) \
+	) \
+))
+
+#define ENTRY_NEXT(x) ((uint8_t *)( \
+	(x + *ENTRY_SIZE(x)) \
+))
+
+#define ENTRY_CALC_SIZE(x) ((uint16_t)( \
+	ALIGN8( \
+		((uintptr_t)ENTRY_NODE_PLATINFO(x) + sizeof(platInfo_t)) \
+	) - (uintptr_t)x \
+))
+
 #endif

@@ -12,3 +12,4 @@ This is your platform's initialization function.  It is the very first thing cal
 - The audio subsystem, if necessary, has been initialized
 - The input subsystem, if necessary, has been initialized
 - The networking subsystem, if necessary, has been initialized
+- The NODE_LocalName string has been filled with some value

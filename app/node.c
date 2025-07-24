@@ -1,3 +1,4 @@
+#include "evrnet/plat.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -15,7 +16,9 @@ char NODE_LocalName[64];
 uint64_t NODE_LocalUUID[2];
 
 void NODE_Init(void) {
-	NODE_NodeList = malloc(sizeof(nodeList_t));
+	uint8_t *e;
+	/* generous buffer to make our local entry */
+	NODE_NodeList = malloc(sizeof(nodeList_t) + 4096);
 	if (!NODE_NodeList) {
 		perror("malloc");
 		APP_CleanupAndExit(1);
@@ -23,6 +26,19 @@ void NODE_Init(void) {
 
 	NODE_NodeList->len = sizeof(nodeList_t);
 	NODE_NodeList->version = EVRNET_NODELIST_V1;
+
+	/* set up local entry */
+	e = NODE_NodeList->entries;
+	*ENTRY_NUM_IP(e) = 0;
+	strcpy(ENTRY_NODE_NAME(e), NODE_LocalName);
+	ENTRY_NODE_UUID(e)[0] = 0xDEADBEEF12345678;
+	ENTRY_NODE_UUID(e)[1] = 0x12345678DEADBEEF;
+	strcpy(ENTRY_NODE_EVRNET_VER(e), "somever");
+	*ENTRY_SIZE(e) = ENTRY_CALC_SIZE(e);
+	/* clear out the next few bytes */
+	memset(ENTRY_NEXT(e), 0, 8);
+
+	NODE_NodeList->len += *ENTRY_SIZE(e) + 8;
 }
 
 #ifdef EVRNET_CPU_IS_LE
@@ -64,7 +80,7 @@ void NODE_CheckForNewNodes(evrnet_bcast_msg_t *msg) {
 		printf("node name: %s\n", nameTemp);
 
 		/* alignment */
-		e += (uintptr_t)e % 4;
+		e = ALIGN4(e);
 
 		for (i = 0; i < numIPs; i++) {
 			inet_ntop(AF_INET, e, ip, INET_ADDRSTRLEN);
@@ -74,7 +90,7 @@ void NODE_CheckForNewNodes(evrnet_bcast_msg_t *msg) {
 		e++;
 
 		/* alignment */
-		e += (uintptr_t)e % 8;
+		e = ALIGN8(e);
 
 		printf("UUID 0: 0x%16lX\n", *((uint64_t *)e));
 		e += 8;
@@ -92,12 +108,11 @@ void NODE_CheckForNewNodes(evrnet_bcast_msg_t *msg) {
 		printf("everythingnet version: %s\n", evrnetVer);
 
 		/* alignment */
-		e += (uintptr_t)e % 4;
+		e = ALIGN4(e);
 
-		/* TODO: PLAT_Info */
-
+		e += sizeof(platInfo_t);
 
 		/* alignment */
-		e += (uintptr_t)e % 8;
+		e = ALIGN8(e);
 	}
 }
