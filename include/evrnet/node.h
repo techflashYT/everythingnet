@@ -2,8 +2,11 @@
 #define _NODE_H
 
 #include <stdint.h>
+#include <evrnet/plat.h>
 #include <evrnet/net.h>
 #include <evrnet/nodeType.h>
+
+#define EVRNET_NODELIST_V1 0x00000001
 
 /* Local UUID */
 extern uint64_t NODE_LocalUUID[2];
@@ -22,7 +25,7 @@ extern void NODE_CheckForNewNodes(evrnet_bcast_msg_t *msg);
  * (to be transferred over the network), or from Big Endian
  * back to native endianness
  */
-#ifdef __BIG_ENDIAN__
+#ifdef EVRNET_CPU_IS_BE
 /* These do nothing on BE, since native endianness is already
  * what we want to transfer
  */

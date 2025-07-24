@@ -1,7 +1,7 @@
 #ifndef _PLAT_H
 #define _PLAT_H
 #include <stdint.h> /* for 32/64-bit check */
-#include <evrnet/net.h> /* for network struct */
+#include <evrnet/netType.h> /* for network struct */
 
 /*
  * Platform specific initialization function.
@@ -36,6 +36,25 @@ extern int PLAT_Init(int argc, char *argv[]);
 #define PLAT_STR_PPC64   "PowerPC (64-bit Big Endian)"
 #define PLAT_STR_PPC64LE "PowerPC (64-bit Little Endian)"
 
+
+/* In order of accuracy:
+ * - We have __BYTE_ORDER__ and __ORDER_LITTLER_ENDIAN__, and they are equal?
+ * - __LITTLE_ENDIAN__ or __LITTLE_ENDIAN are defined?
+ *
+ * And the reverse of the above for BE:
+ * - We have __BYTE_ORDER__ and __ORDER_BIG_ENDIAN__, and they are equal?
+ * - __BIG_ENDIAN__ or __BIG_ENDIAN are defined?
+ */
+#if ( defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && ( __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__ ) ) || \
+	( defined(__LITTLE_ENDIAN__) || defined(__LITTLE_ENDIAN) )
+#define EVRNET_CPU_IS_LE 1
+#elif ( defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && ( __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__ ) ) || \
+	( defined(__BIG_ENDIAN__) || defined(__BIG_ENDIAN) )
+#define EVRNET_CPU_IS_BE 1
+#else
+#error "Unable to determine endianness for this platform, or endianness is neither big nor little"
+#endif
+
 #if defined(__i386__) || defined(__x86__) || defined(_M_IX86) || defined(__386__) || defined(__X86__) || defined(__DOS__)
 #define PLAT_STR_NATIVE PLAT_STR_X86
 #define EVRNET_CPU_X86
@@ -51,10 +70,10 @@ extern int PLAT_Init(int argc, char *argv[]);
 #elif defined(__PPC__) && (INTPTR_MAX == INT32_MAX)
 #define PLAT_STR_NATIVE PLAT_STR_PPC32
 #define EVRNET_CPU_PPC32
-#elif defined(__PPC__) && (INTPTR_MAX == INT64_MAX) && defined(__BIG_ENDIAN__)
+#elif defined(__PPC__) && (INTPTR_MAX == INT64_MAX) && defined(EVRNET_CPU_IS_BE)
 #define PLAT_STR_NATIVE PLAT_STR_PPC64
 #define EVRNET_CPU_PPC64
-#elif defined(__PPC__) && (INTPTR_MAX == INT64_MAX) && !defined(__BIG_ENDIAN__) /* __LITTLE_ENDIAN__ may not specifically be defined */
+#elif defined(__PPC__) && (INTPTR_MAX == INT64_MAX) && defined(EVRNET_CPU_IS_LE)
 #define PLAT_STR_NATIVE PLAT_STR_PPC64LE
 #define EVRNET_CPU_PPC64LE
 #else
