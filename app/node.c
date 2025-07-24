@@ -31,8 +31,8 @@ void NODE_Init(void) {
 	e = NODE_NodeList->entries;
 	*ENTRY_NUM_IP(e) = 0;
 	strcpy(ENTRY_NODE_NAME(e), NODE_LocalName);
-	ENTRY_NODE_UUID(e)[0] = 0xDEADBEEF12345678;
-	ENTRY_NODE_UUID(e)[1] = 0x12345678DEADBEEF;
+	ENTRY_NODE_UUID(e)[0] = NODE_LocalUUID[0];
+	ENTRY_NODE_UUID(e)[1] = NODE_LocalUUID[1];
 	strcpy(ENTRY_NODE_EVRNET_VER(e), "somever");
 	*ENTRY_SIZE(e) = ENTRY_CALC_SIZE(e);
 	/* clear out the next few bytes */

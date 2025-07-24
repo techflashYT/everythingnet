@@ -13,3 +13,11 @@ This is your platform's initialization function.  It is the very first thing cal
 - The input subsystem, if necessary, has been initialized
 - The networking subsystem, if necessary, has been initialized
 - The NODE_LocalName string has been filled with some value
+- NODE_LocalUUID[0] and [1] are set to something, and not left uninitialized
+  - Value must be consistent across every launch
+  - Value should be suitably random (for example, not all 0s) as to accurately refer to a given device
+  - Value may optionally be drived from, or have relation to, the system hardware / software
+  - Examples:
+    - Pull from /etc/machine-id
+    - Generate a random number of first launch and save it for subsequent use
+    - Do some math based on system information

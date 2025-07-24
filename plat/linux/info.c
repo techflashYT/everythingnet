@@ -1,4 +1,5 @@
 #include "evrnet/node.h"
+#include <asm-generic/errno-base.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,6 +26,7 @@ platInfo_t PLAT_Info = {
 int LINUX_GatherInfo() {
 	struct utsname utsname;
 	int ret;
+	FILE *fp;
 
 	ret = LINUX_GatherDeviceInfo();
 	if (ret)
@@ -45,6 +47,15 @@ int LINUX_GatherInfo() {
 	strcpy(PLAT_Info.os, "Linux ");
 	strncat(PLAT_Info.os, utsname.release, 128 - 7); /* 128 - "Linux " */
 	strncpy(NODE_LocalName, utsname.nodename, sizeof(NODE_LocalName));
+
+	fp = fopen("/etc/machine-id", "r");
+	if (!fp) {
+		perror("fopen");
+		return -ENOENT;
+	}
+	fscanf(fp, "%016lx", &NODE_LocalUUID[0]);
+	fscanf(fp, "%016lx", &NODE_LocalUUID[1]);
+	fclose(fp);
 
 	ret = LINUX_GatherCPUInfo();
 	if (ret)
