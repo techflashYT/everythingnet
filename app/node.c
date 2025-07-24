@@ -1,3 +1,4 @@
+#include "evrnet/cap.h"
 #include "evrnet/plat.h"
 #include <stdio.h>
 #include <string.h>
@@ -34,7 +35,18 @@ void NODE_Init(void) {
 	ENTRY_NODE_UUID(e)[0] = NODE_LocalUUID[0];
 	ENTRY_NODE_UUID(e)[1] = NODE_LocalUUID[1];
 	strcpy(ENTRY_NODE_EVRNET_VER(e), "somever");
+
+	/* PLAT_Info */
+	*ENTRY_NODE_PLATINFO_CAP(e) = PLAT_Info.cap;
+	*ENTRY_NODE_PLATINFO_MEMSZ(e) = PLAT_Info.memSz;
+	strcpy(ENTRY_NODE_PLATINFO_NAME(e), PLAT_Info.name);
+	strcpy(ENTRY_NODE_PLATINFO_OS(e), PLAT_Info.os);
+	strcpy(ENTRY_NODE_PLATINFO_ARCH(e), PLAT_Info.arch);
+	strcpy(ENTRY_NODE_PLATINFO_CPU(e), PLAT_Info.cpu);
+	strcpy(ENTRY_NODE_PLATINFO_GPU(e), PLAT_Info.gpu);
+
 	*ENTRY_SIZE(e) = ENTRY_CALC_SIZE(e);
+
 	/* clear out the next few bytes */
 	memset(ENTRY_NEXT(e), 0, 8);
 
@@ -55,7 +67,7 @@ void NODE_CheckForNewNodes(evrnet_bcast_msg_t *msg) {
 	nodeList_t *nl;
 	uint8_t *e;
 	int i = 0, numIPs;
-	char nameTemp[64];
+	char nameTemp[256];
 	char evrnetVer[64];
 	char ip[INET_ADDRSTRLEN];
 	puts("trying to parse nodes");
@@ -110,7 +122,21 @@ void NODE_CheckForNewNodes(evrnet_bcast_msg_t *msg) {
 		/* alignment */
 		e = ALIGN4(e);
 
-		e += sizeof(platInfo_t);
+		CAP_Cap2Str(*((uint32_t *)e), nameTemp);
+		printf("cap: 0x%08X, %s\n", *((uint32_t *)e), nameTemp);
+		e += 4;
+		printf("memsz: %dKB\n", *((int *)e));
+		e += 4;
+		printf("devname: %s\n", ((char *)e));
+		e += strlen(((char *)e)) + 1;
+		printf("os: %s\n", ((char *)e));
+		e += strlen(((char *)e)) + 1;
+		printf("arch: %s\n", ((char *)e));
+		e += strlen(((char *)e)) + 1;
+		printf("cpu: %s\n", ((char *)e));
+		e += strlen(((char *)e)) + 1;
+		printf("gpu: %s\n", ((char *)e));
+		e += strlen(((char *)e)) + 1;
 
 		/* alignment */
 		e = ALIGN8(e);

@@ -108,7 +108,7 @@ typedef struct {
 	int memSz;
 
 	/* Platform capabilites (bitmask) */
-	unsigned int cap;
+	uint32_t cap;
 } platInfo_t;
 
 extern platInfo_t PLAT_Info;

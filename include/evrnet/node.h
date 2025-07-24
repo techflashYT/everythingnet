@@ -49,7 +49,7 @@ extern void NODE_ListToBE(void);
 #define ENTRY_NODE_IPS(x) \
 ((uint32_t *)( \
 	ALIGN4( \
-		(uintptr_t)(ENTRY_NODE_NAME(x)) + strlen(ENTRY_NODE_NAME(x)) \
+		(uintptr_t)(ENTRY_NODE_NAME(x)) + strlen(ENTRY_NODE_NAME(x) + 1) \
 	) \
 ))
 #define ENTRY_NODE_UUID(x) ((uint64_t *)( \
@@ -60,13 +60,41 @@ extern void NODE_ListToBE(void);
 	) \
 ))
 #define ENTRY_NODE_EVRNET_VER(x) ((char *)( \
-	((uint8_t *)ENTRY_NODE_UUID(x)) + (sizeof(uint64_t) * 2) \
+	((uintptr_t)ENTRY_NODE_UUID(x)) + (sizeof(uint64_t) * 2) \
 ))
 
-#define ENTRY_NODE_PLATINFO(x) ((platInfo_t *)( \
+#define ENTRY_NODE_PLATINFO_CAP(x) ((uint32_t *)( \
 	ALIGN4( \
-		((uint8_t *)ENTRY_NODE_EVRNET_VER(x)) + strlen(ENTRY_NODE_EVRNET_VER(x)) \
+		((uintptr_t)ENTRY_NODE_EVRNET_VER(x)) + strlen(ENTRY_NODE_EVRNET_VER(x) + 1) \
 	) \
+))
+
+#define ENTRY_NODE_PLATINFO_MEMSZ(x) ((int *)( \
+	(uintptr_t)ENTRY_NODE_PLATINFO_CAP(x) + sizeof(uint32_t) \
+))
+
+#define ENTRY_NODE_PLATINFO_NAME(x) ((char *)( \
+	(uintptr_t)ENTRY_NODE_PLATINFO_MEMSZ(x) + sizeof(int) \
+))
+
+#define ENTRY_NODE_PLATINFO_OS(x) ((char *)( \
+	(uintptr_t)ENTRY_NODE_PLATINFO_NAME(x) + \
+	strlen(ENTRY_NODE_PLATINFO_NAME(x)) + 1 \
+))
+
+#define ENTRY_NODE_PLATINFO_ARCH(x) ((char *)( \
+	(uintptr_t)ENTRY_NODE_PLATINFO_OS(x) + \
+	strlen(ENTRY_NODE_PLATINFO_OS(x)) + 1 \
+))
+
+#define ENTRY_NODE_PLATINFO_CPU(x) ((char *)( \
+	(uintptr_t)ENTRY_NODE_PLATINFO_ARCH(x) + \
+	strlen(ENTRY_NODE_PLATINFO_ARCH(x)) + 1 \
+))
+
+#define ENTRY_NODE_PLATINFO_GPU(x) ((char *)( \
+	(uintptr_t)ENTRY_NODE_PLATINFO_CPU(x) + \
+	strlen(ENTRY_NODE_PLATINFO_CPU(x)) + 1 \
 ))
 
 #define ENTRY_NEXT(x) ((uint8_t *)( \
@@ -75,8 +103,11 @@ extern void NODE_ListToBE(void);
 
 #define ENTRY_CALC_SIZE(x) ((uint16_t)( \
 	ALIGN8( \
-		((uintptr_t)ENTRY_NODE_PLATINFO(x) + sizeof(platInfo_t)) \
-	) - (uintptr_t)x \
+		( \
+			(uintptr_t)ENTRY_NODE_PLATINFO_GPU(x) + \
+			strlen(ENTRY_NODE_PLATINFO_GPU(x) + 1) - (uintptr_t)x \
+		) \
+	) \
 ))
 
 #endif
