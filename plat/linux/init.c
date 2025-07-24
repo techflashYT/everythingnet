@@ -3,6 +3,7 @@
 #include <evrnet/state.h>
 #include <evrnet/plat/linux.h>
 #include <evrnet/plat/linux_gfx.h>
+#include <evrnet/plat/linux_net.h>
 int PLAT_Init(int argc, char *argv[]) {
 	(void)argc;
 	(void)argv;
@@ -18,5 +19,6 @@ int PLAT_Init(int argc, char *argv[]) {
 	 * want to do things like initializing an X11/Wayland
 	 * window here.
 	 */
+	LINUX_NetInit();
 	return 0;
 }

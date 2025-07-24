@@ -1,6 +1,7 @@
 #ifndef _PLAT_H
 #define _PLAT_H
 #include <stdint.h> /* for 32/64-bit check */
+#include <evrnet/net.h> /* for network struct */
 
 /*
  * Platform specific initialization function.
@@ -99,5 +100,26 @@ extern void PLAT_FlushOutput();
 /* no-op */
 #define PLAT_FlushOutput() (void)0
 #endif
+
+
+/*
+ * Check for new broadcast data
+ *
+ * Returns:
+ * < 0: Error
+ * 0: No new messages
+ * 1: New message available, filled in msg
+ */
+extern int PLAT_NetCheckBcastData(evrnet_bcast_msg_t *msg);
+
+
+/*
+ * Do a broadcast to all known interfaces
+ *
+ * Returns:
+ * < 0: Error
+ * 0: Success
+ */
+extern int PLAT_NetDoBroadcast(evrnet_bcast_msg_t *msg);
 
 #endif

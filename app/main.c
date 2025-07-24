@@ -3,16 +3,33 @@
  * Copyright (C) 2025 Techflash
  */
 
+#include <bits/time.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <unistd.h>
+
+#if _POSIX_TIMERS > 0
+#include <time.h>
+#else
+#include <sys/time.h>
+#endif
+
 #include <evrnet/plat.h>
 #include <evrnet/cap.h>
 #include <evrnet/state.h>
+#include <evrnet/net.h>
 
 int main(int argc, char *argv[]) {
 	int ret, memSz, suffixNum, i;
 	char* suffix[] = { "KB", "MB", "GB" };
 	char capStr[256];
+	bool keepRunning = true;
+	#if _POSIX_TIMERS > 0
+	struct timespec startTime, endTime;
+	#else
+	struct timeval startTime, endTime;
+	#endif
+
 	ret = 0; suffixNum = 0;
 
 	ret = PLAT_Init(argc, argv);
@@ -41,7 +58,47 @@ int main(int argc, char *argv[]) {
 	printf("Capabilities: %s\r\n", capStr);
 	PLAT_FlushOutput();
 
-	sleep(5);
+	/* main loop */
+	while (keepRunning) {
+		long usecToSleep = 500 * 1000; /* 500ms loop time */
+
+		/* get start time (to later calculate time spent doing work) */
+		#if _POSIX_TIMERS > 0
+		clock_gettime(CLOCK_MONOTONIC, &startTime);
+		#else
+		gettimeofday(&startTime, NULL);
+		#endif
+
+		/* actually do the networking */
+		NET_HandleBcast();
+
+		/* TODO: some way to make keepRunning go false on request */
+
+		/* get end time, to calculate time spent doing work
+		 * and subtract it from time to sleep until next iteration
+		 */
+		#if _POSIX_TIMERS > 0
+		clock_gettime(CLOCK_MONOTONIC, &endTime);
+		usecToSleep -= ((endTime.tv_sec - startTime.tv_sec) * 1000000L) +
+						((endTime.tv_nsec - startTime.tv_nsec) / 1000L);
+		#else
+		gettimeofday(&endTime, NULL);
+		usecToSleep -= ((endTime.tv_sec - startTime.tv_sec) * 1000000L) +
+						(endTime.tv_usec - startTime.tv_usec);
+		#endif
+
+		/* well damn, we must be running on a 4MHz
+		 * microcontroller or something, how the
+		 * hell did that take so long?
+		 * Either way, we're running behind, so don't
+		 * sleep at all.
+		 *
+		 * TODO: nanosleep() is more precise, but harder
+		 * to use, and no trivial way to detect if it exists
+		 */
+		if (usecToSleep > 0)
+			usleep(usecToSleep);
+	}
 
 	APP_CleanupAndExit(0);
 	return 1; /* should never be reached */

@@ -54,3 +54,18 @@ config GFX_FB
 	bool "Framebuffer graphics support"
 	default y
 	depends on PLAT_POSIX_LIKE
+
+config NET_MAX_INT
+	int "Maximum allowed network interfaces"
+	default 8
+
+config NET_MAX_PKT_KB
+	int "Maximum packet size in kilobytes"
+	default 64
+	help
+	  This is the maximum size of packet that can be recieved.
+	  If a packet is recieved that is larger than this, it will
+	  be truncated to fit.
+
+	  EverythingNet will allocate this much memory during startup,
+	  so do be careful what you set here if you have a constrained device.
