@@ -108,8 +108,8 @@ extern void NODE_ListToBE(void);
 #define ENTRY_CALC_SIZE(x) ((uint16_t)( \
 	ALIGN8( \
 		( \
-			(uintptr_t)ENTRY_NODE_PLATINFO_GPU(x) + \
-			strlen(ENTRY_NODE_PLATINFO_GPU(x) + 1) - (uintptr_t)x \
+			((uintptr_t)ENTRY_NODE_PLATINFO_GPU(x) + \
+			strlen(ENTRY_NODE_PLATINFO_GPU(x) + 1)) - (uintptr_t)x \
 		) \
 	) \
 ))

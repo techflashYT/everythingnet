@@ -189,89 +189,45 @@ static uint8_t *NODE_EntryToNative(uint8_t *e) {
 void NODE_CheckForNewNodes(evrnet_bcast_msg_t *msg) {
 	nodeList_t *nl;
 	uint8_t *e;
-	uint8_t *_e;
-	int i = 0, numIPs;
-	char nameTemp[256];
-	char evrnetVer[64];
+	int i = 0;
+	char capTemp[256];
 	char ip[INET_ADDRSTRLEN];
 	puts("trying to parse nodes");
 	nl = &msg->nodeList;
 	e = nl->entries;
-	memset(nameTemp, 0, sizeof(nameTemp));
-	memset(evrnetVer, 0, sizeof(evrnetVer));
 
 	NODE_EntryToNative(e);
 
 	/* 0 size = end of list */
 	while (*(uint16_t *)e != 0) {
-		_e = e;
-		printf("size value: %u\n", *((uint16_t *)e));
-		e += 2;
-		printf("num IPS: %u\n", *e);
-		numIPs = *e;
-		e++;
-		while (*e) {
-			nameTemp[i] = *e;
-			e++;
-			i++;
-		}
-		e++;
-		printf("node name: %s\n", nameTemp);
+		printf("size value: %u\n", *ENTRY_SIZE(e));
+		printf("num IPS: %u\n", *ENTRY_NUM_IP(e));
+		printf("node name: %s\n", ENTRY_NODE_NAME(e));
 
-		/* alignment */
-		e = ALIGN4(e);
-
-		for (i = 0; i < numIPs; i++) {
-			inet_ntop(AF_INET, e, ip, INET_ADDRSTRLEN);
+		for (i = 0; i < *ENTRY_NUM_IP(e); i++) {
+			inet_ntop(AF_INET, &ENTRY_NODE_IPS(e)[i], ip, INET_ADDRSTRLEN);
 			printf("IP address: %s\n", ip);
-			e += 4;
 		}
-
-		/* alignment */
-		e = ALIGN8(e);
 
 		#ifdef EVRNET_CPU_IS_64BIT
-		printf("UUID 0: 0x%16lX\n", *((uint64_t *)e));
-		e += 8;
-		printf("UUID 1: 0x%16lX\n", *((uint64_t *)e));
-		e += 8;
+		printf("UUID 0: 0x%16lX\n", ENTRY_NODE_UUID(e)[0]);
+		printf("UUID 1: 0x%16lX\n", ENTRY_NODE_UUID(e)[1]);
 		#elif defined(EVRNET_CPU_IS_32BIT)
-		printf("UUID 0: 0x%16llX\n", *((uint64_t *)e));
-		e += 8;
-		printf("UUID 1: 0x%16llX\n", *((uint64_t *)e));
-		e += 8;
+		printf("UUID 0: 0x%16llX\n", ENTRY_NODE_UUID(e)[0]);
+		printf("UUID 1: 0x%16llX\n", ENTRY_NODE_UUID(e)[1]);
 		#endif
 
-		i = 0;
-		while (*e) {
-			evrnetVer[i] = *e;
-			e++;
-			i++;
-		}
-		e++;
+		printf("everythingnet version: %s\n", ENTRY_NODE_EVRNET_VER(e));
 
-		printf("everythingnet version: %s\n", evrnetVer);
+		CAP_Cap2Str(*ENTRY_NODE_PLATINFO_CAP(e), capTemp);
+		printf("cap: 0x%08X, %s\n", *ENTRY_NODE_PLATINFO_CAP(e), capTemp);
+		printf("memsz: %dKB\n", *ENTRY_NODE_PLATINFO_MEMSZ(e));
+		printf("devname: %s\n", ENTRY_NODE_PLATINFO_NAME(e));
+		printf("os: %s\n", ENTRY_NODE_PLATINFO_OS(e));
+		printf("arch: %s\n", ENTRY_NODE_PLATINFO_ARCH(e));
+		printf("cpu: %s\n", ENTRY_NODE_PLATINFO_CPU(e));
+		printf("gpu: %s\n", ENTRY_NODE_PLATINFO_GPU(e));
 
-		/* alignment */
-		e = ALIGN4(e);
-
-		CAP_Cap2Str(*((uint32_t *)e), nameTemp);
-		printf("cap: 0x%08X, %s\n", *((uint32_t *)e), nameTemp);
-		e += 4;
-		printf("memsz: %dKB\n", *((int *)e));
-		e += 4;
-		printf("devname: %s\n", ((char *)e));
-		e += strlen(((char *)e)) + 1;
-		printf("os: %s\n", ((char *)e));
-		e += strlen(((char *)e)) + 1;
-		printf("arch: %s\n", ((char *)e));
-		e += strlen(((char *)e)) + 1;
-		printf("cpu: %s\n", ((char *)e));
-		e += strlen(((char *)e)) + 1;
-		printf("gpu: %s\n", ((char *)e));
-		e += strlen(((char *)e)) + 1;
-
-		/* alignment */
-		e = ALIGN8(e);
+		e = ENTRY_NEXT(e);
 	}
 }
