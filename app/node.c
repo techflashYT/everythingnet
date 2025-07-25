@@ -1,10 +1,8 @@
-#include "evrnet/cap.h"
-#include "evrnet/netType.h"
-#include "evrnet/plat.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
@@ -13,6 +11,9 @@
 #include <evrnet/state.h>
 #include <evrnet/net.h>
 #include <sys/socket.h>
+#include <evrnet/cap.h>
+#include <evrnet/netType.h>
+#include <evrnet/plat.h>
 nodeList_t *NODE_NodeList;
 char NODE_LocalName[64];
 uint64_t NODE_LocalUUID[2];
@@ -149,9 +150,9 @@ static uint8_t *NODE_EntryToLE(uint8_t *e) {
 
 static uint8_t *NODE_EntryToBE(uint8_t *e) {
 	/* save a pointer to the original, since we can't
-	 * byteswap the size if we want to use ENTRY_PREV(e)
+	 * byteswap the size yet if we want to use ENTRY_PREV(e)
 	 */
-	uint8_t *lastEntry = e;
+	uint8_t *tmp = e;
 	int i;
 
 	/* convert IPs */
@@ -170,27 +171,36 @@ static uint8_t *NODE_EntryToBE(uint8_t *e) {
 	e = ENTRY_PREV(e);
 
 	/* convert the size now that we've used it */
-	*ENTRY_SIZE(lastEntry) = htons(*ENTRY_SIZE(lastEntry));
+	*ENTRY_SIZE(tmp) = htons(*ENTRY_SIZE(tmp));
 
 	return e;
 }
 
 void NODE_ListToBE(nodeList_t *nl) {
-	uint8_t *e = nl->entries, *lastEntry;
-	int i;
-	while (((uintptr_t)e - (uintptr_t)nl->entries) < (nl->len - sizeof(nodeList_t))) {
-		lastEntry = e;
-		e = ENTRY_NEXT(e);
-	}
-	e = lastEntry;
+	uint8_t *e = nl->entries, **entryPtrs;
+	int i = 0, max = 0;
 
-	/* work backwards, converting every entry to BE.
-	 * Must happen this way since entries inherently
-	 * depend on previous ones in order to traverse
+	/* we need to save the pointers because:
+	 * - we can't iterate forwards (we clobber the size)
+	 * - we can't iterate backwards (we don't know the size of node n-1)
 	 */
-	while (e >= nl->entries) {
-		e = NODE_EntryToBE(e);
+	entryPtrs = malloc(sizeof(void *) * 512);
+	if (!entryPtrs) {
+		perror("malloc");
+		APP_CleanupAndExit(1);
 	}
+
+	while (((uintptr_t)e - (uintptr_t)nl->entries) < (nl->len - sizeof(nodeList_t))) {
+		entryPtrs[i] = e;
+		e = ENTRY_NEXT(e);
+		i++;
+	}
+	max = i;
+
+	for (i = 0; i < max; i++)
+		NODE_EntryToBE(entryPtrs[i]);
+
+	free(entryPtrs);
 
 	nl->version = htonl(nl->version);
 	nl->len = htonl(nl->len);
@@ -220,6 +230,72 @@ static uint8_t *NODE_EntryToNative(uint8_t *e) {
 }
 #endif
 
+static void NODE_MaybeAddEntry(uint8_t *e) {
+	bool known = false;
+	nodeList_t *nl = NODE_NodeList;
+	uint8_t *knownEntry, *lastEntry;
+	uint32_t lastEntryOffset;
+
+	puts("maybeAddNewEntry");
+	knownEntry = nl->entries;
+
+	/* do we know this UUID? */
+	while ((uintptr_t)knownEntry <
+		((uintptr_t)nl->entries + (nl->len - sizeof(nodeList_t)))) {
+		if (ENTRY_NODE_UUID(e)[0] == ENTRY_NODE_UUID(knownEntry)[0] &&
+			ENTRY_NODE_UUID(e)[1] == ENTRY_NODE_UUID(knownEntry)[1]) {
+			/* we know this node */
+			known = true;
+			break;
+		}
+
+		/* not yet, check next one */
+		knownEntry = ENTRY_NEXT(knownEntry);
+	}
+
+	/* yes, get back to business */
+	if (known) {
+		puts("entry known");
+		return;
+	}
+
+	/* reset knownEntry */
+	knownEntry = nl->entries;
+
+	/* get the last entry of the list */
+	puts("finding end");
+	while (((uintptr_t)knownEntry - (uintptr_t)nl->entries) < (nl->len - sizeof(nodeList_t))) {
+		lastEntry = knownEntry;
+		knownEntry = ENTRY_NEXT(knownEntry);
+	}
+
+	/* save lastEntry offset, since we need to cleanse ourselves
+	 * of any old pointers after the below realloc().
+	 * So, we can save the offset into the entires table into
+	 * which the last entry is, since that'll still be valid
+	 * in the new array
+	 */
+	lastEntryOffset = (uintptr_t)lastEntry - (uintptr_t)nl->entries;
+
+	/* realloc the nodelist to fit our new node */
+	puts("realloc");
+	nl->len += *ENTRY_SIZE(e);
+	NODE_NodeList = realloc(NODE_NodeList, nl->len);
+
+	/* cleanse our pointers */
+	nl = NODE_NodeList; /* ensure our shorthand 'nl' points to the new one */
+	lastEntry = (uint8_t *)((uintptr_t)nl->entries + lastEntryOffset); /* re-apply offset to new list */
+
+	/* pointer to new (unwritten) entry now in knownEntry */
+	knownEntry = ENTRY_NEXT(lastEntry);
+
+	/* copy our new entry over */
+	printf("copying %d bytes into node table\n", *ENTRY_SIZE(e));
+	memcpy(knownEntry, e, *ENTRY_SIZE(e));
+
+	printf("Found new node: %s!\n", ENTRY_NODE_NAME(e));
+}
+
 void NODE_CheckForNewNodes(evrnet_bcast_msg_t *msg) {
 	nodeList_t *nl = &msg->nodeList;
 	uint8_t *e = nl->entries;
@@ -227,7 +303,7 @@ void NODE_CheckForNewNodes(evrnet_bcast_msg_t *msg) {
 	NODE_ListToNative(nl);
 
 	while (((uintptr_t)e - (uintptr_t)nl->entries) < (nl->len - sizeof(nodeList_t))) {
-		NODE_DumpEntry(e);
+		NODE_MaybeAddEntry(e);
 		e = ENTRY_NEXT(e);
 	}
 }
