@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <errno.h>
 #include <sys/utsname.h>
 
 #include <evrnet/cap.h>
@@ -53,8 +52,12 @@ int LINUX_GatherInfo() {
 		perror("fopen");
 		return -ENOENT;
 	}
-	fscanf(fp, "%016lx", &NODE_LocalUUID[0]);
-	fscanf(fp, "%016lx", &NODE_LocalUUID[1]);
+	if (fscanf(fp, "%016lx", &NODE_LocalUUID[0]) != 1 ||
+		fscanf(fp, "%016lx", &NODE_LocalUUID[1]) != 1) {
+			fclose(fp);
+			perror("fscanf");
+			return -EINVAL;
+	}
 	fclose(fp);
 
 	ret = LINUX_GatherCPUInfo();
