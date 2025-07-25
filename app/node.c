@@ -47,14 +47,11 @@ void NODE_Init(void) {
 	strcpy(ENTRY_NODE_PLATINFO_GPU(e), PLAT_Info.gpu);
 
 	*ENTRY_SIZE(e) = ENTRY_CALC_SIZE(e);
-	NODE_NodeList->len += *ENTRY_SIZE(e) + 8;
+	NODE_NodeList->len += *ENTRY_SIZE(e);
 
 	/* now that we've calculated it all out, drop our memory usage */
 	NODE_NodeList = realloc(NODE_NodeList, NODE_NodeList->len);
 	e = NODE_NodeList->entries;
-
-	/* clear out the next few bytes */
-	memset(ENTRY_NEXT(e), 0, 8);
 }
 
 static void NODE_CheckLen(uint32_t len) {
@@ -141,10 +138,10 @@ static uint8_t *NODE_EntryToBE(uint8_t *e) {
 	return e;
 }
 
-void NODE_ListToBE(void) {
-	uint8_t *e = NODE_NodeList->entries, *lastEntry;
+void NODE_ListToBE(nodeList_t *nl) {
+	uint8_t *e = nl->entries, *lastEntry;
 	int i;
-	while (*e) {
+	while (((uintptr_t)e - (uintptr_t)nl->entries) < (nl->len - sizeof(nodeList_t))) {
 		lastEntry = e;
 		e = ENTRY_NEXT(e);
 	}
@@ -154,27 +151,27 @@ void NODE_ListToBE(void) {
 	 * Must happen this way since entries inherently
 	 * depend on previous ones in order to traverse
 	 */
-	while (e >= NODE_NodeList->entries) {
+	while (e >= nl->entries) {
 		e = NODE_EntryToBE(e);
 	}
 
-	NODE_NodeList->version = htonl(NODE_NodeList->version);
-	NODE_NodeList->len = htonl(NODE_NodeList->len);
+	nl->version = htonl(nl->version);
+	nl->len = htonl(nl->len);
 }
 
-void NODE_ListToNative(void) {
-	uint8_t *e = NODE_NodeList->entries;
+void NODE_ListToNative(nodeList_t *nl) {
+	uint8_t *e = nl->entries;
 	int i;
+
+	nl->version = ntohl(nl->version);
+	nl->len = ntohl(nl->len);
 
 	/* work forwards, converting every entry to native (LE).
 	 * Must happen this way since entries inherently
 	 * depend on previous ones in order to traverse
 	 */
-	while (*ENTRY_SIZE(e) != 0)
+	while ((uintptr_t)e < ((uintptr_t)nl->entries + (nl->len - sizeof(nodeList_t))))
 		e = NODE_EntryToLE(e);
-
-	NODE_NodeList->version = ntohl(NODE_NodeList->version);
-	NODE_NodeList->len = ntohl(NODE_NodeList->len);
 }
 
 static uint8_t *NODE_EntryToNative(uint8_t *e) {
@@ -196,10 +193,9 @@ void NODE_CheckForNewNodes(evrnet_bcast_msg_t *msg) {
 	nl = &msg->nodeList;
 	e = nl->entries;
 
-	NODE_EntryToNative(e);
+	NODE_ListToNative(nl);
 
-	/* 0 size = end of list */
-	while (*(uint16_t *)e != 0) {
+	while (((uintptr_t)e - (uintptr_t)nl->entries) < (nl->len - sizeof(nodeList_t))) {
 		printf("size value: %u\n", *ENTRY_SIZE(e));
 		printf("num IPS: %u\n", *ENTRY_NUM_IP(e));
 		printf("node name: %s\n", ENTRY_NODE_NAME(e));

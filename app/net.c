@@ -57,7 +57,7 @@ tx:
 	/* TODO: Calculate CRC */
 
 	/* convert the node list to BE so we can send it (this will no-op on BE-native platforms) */
-	NODE_ListToBE();
+	NODE_ListToBE(NODE_NodeList);
 
 	/* copy the now BE-ified node list to our data portion */
 	memcpy(&msg->nodeList, NODE_NodeList, ntohl(NODE_NodeList->len));
@@ -66,7 +66,7 @@ tx:
 	 * (this will again no-op on BE-native platforms, since we never swapped
 	 *  it in the first place in order to send it).
 	 */
-	NODE_ListToNative();
+	NODE_ListToNative(NODE_NodeList);
 
 	/* our packet is ready, and the node list is back in order.  let's do this thing. */
 	PLAT_NetDoBroadcast(msg);
