@@ -34,6 +34,7 @@ void NODE_Init(void) {
 	/* set up local entry */
 	e = NODE_NodeList->entries;
 	*ENTRY_NUM_IP(e) = 0;
+	*ENTRY_DISTANCE_FROM_ME(e) = 0;
 	strcpy(ENTRY_NODE_NAME(e), NODE_LocalName);
 	ENTRY_NODE_UUID(e)[0] = NODE_LocalUUID[0];
 	ENTRY_NODE_UUID(e)[1] = NODE_LocalUUID[1];
@@ -199,7 +200,8 @@ void NODE_CheckForNewNodes(evrnet_bcast_msg_t *msg) {
 
 	while (((uintptr_t)e - (uintptr_t)nl->entries) < (nl->len - sizeof(nodeList_t))) {
 		printf("size value: %u\n", *ENTRY_SIZE(e));
-		printf("num IPS: %u\n", *ENTRY_NUM_IP(e));
+		printf("num IPs: %u\n", *ENTRY_NUM_IP(e));
+		printf("distance from sender: %u (%s)\n", *ENTRY_DISTANCE_FROM_ME(e), *ENTRY_DISTANCE_FROM_ME(e) == 0 ? "Local" : "Remote");
 		printf("node name: %s\n", ENTRY_NODE_NAME(e));
 
 		for (i = 0; i < *ENTRY_NUM_IP(e); i++) {

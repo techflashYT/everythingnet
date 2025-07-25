@@ -45,11 +45,12 @@ extern void NODE_ListToBE(nodeList_t *nl);
 
 #define ENTRY_SIZE(x) ((uint16_t *)x)
 #define ENTRY_NUM_IP(x) (((uint8_t *)((uintptr_t)x + 2)))
-#define ENTRY_NODE_NAME(x) ((char *)((uintptr_t)x + 3))
+#define ENTRY_DISTANCE_FROM_ME(x) (((uint8_t *)((uintptr_t)x + 3)))
+#define ENTRY_NODE_NAME(x) ((char *)((uintptr_t)x + 4))
 #define ENTRY_NODE_IPS(x) \
 ((uint32_t *)( \
 	ALIGN4( \
-		(uintptr_t)(ENTRY_NODE_NAME(x)) + strlen(ENTRY_NODE_NAME(x) + 1) \
+		(uintptr_t)(ENTRY_NODE_NAME(x)) + strlen(ENTRY_NODE_NAME(x)) + 1 \
 	) \
 ))
 #define ENTRY_NODE_UUID(x) ((uint64_t *)( \
@@ -65,7 +66,7 @@ extern void NODE_ListToBE(nodeList_t *nl);
 
 #define ENTRY_NODE_PLATINFO_CAP(x) ((uint32_t *)( \
 	ALIGN4( \
-		((uintptr_t)ENTRY_NODE_EVRNET_VER(x)) + strlen(ENTRY_NODE_EVRNET_VER(x) + 1) \
+		((uintptr_t)ENTRY_NODE_EVRNET_VER(x)) + strlen(ENTRY_NODE_EVRNET_VER(x)) + 1 \
 	) \
 ))
 
