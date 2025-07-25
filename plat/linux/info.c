@@ -55,7 +55,7 @@ int LINUX_GatherInfo() {
 	#ifdef EVRNET_CPU_IS_64BIT
 	if (fscanf(fp, "%016lx", &NODE_LocalUUID[0]) != 1 ||
 		fscanf(fp, "%016lx", &NODE_LocalUUID[1]) != 1) {
-	#elif EVRNET_CPU_IS_32BIT
+	#elif defined(EVRNET_CPU_IS_32BIT)
 	if (fscanf(fp, "%016llx", &NODE_LocalUUID[0]) != 1 ||
 		fscanf(fp, "%016llx", &NODE_LocalUUID[1]) != 1) {
 	#else
