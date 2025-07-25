@@ -32,8 +32,8 @@ extern void NODE_CheckForNewNodes(evrnet_bcast_msg_t *msg);
 /* These do nothing on BE, since native endianness is already
  * what we want to transfer
  */
-#define NODE_ListToNative (void)0
-#define NODE_ListToBE (void)0
+#define NODE_ListToNative() (void)0
+#define NODE_ListToBE() (void)0
 #else
 extern void NODE_ListToNative(void);
 extern void NODE_ListToBE(void);
@@ -99,6 +99,10 @@ extern void NODE_ListToBE(void);
 
 #define ENTRY_NEXT(x) ((uint8_t *)( \
 	(x + *ENTRY_SIZE(x)) \
+))
+
+#define ENTRY_PREV(x) ((uint8_t *)( \
+	(x - *ENTRY_SIZE(x)) \
 ))
 
 #define ENTRY_CALC_SIZE(x) ((uint16_t)( \

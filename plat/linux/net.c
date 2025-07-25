@@ -1,8 +1,8 @@
+#include "evrnet/netType.h"
 #include <asm-generic/errno-base.h>
 #include <asm-generic/errno.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <stdlib.h>
 #include <string.h>
 #include <poll.h>
 #include <errno.h>
@@ -184,13 +184,13 @@ int PLAT_NetCheckBcastData(evrnet_bcast_msg_t *msg) {
 		if (ntohl(msg->magic) != EVRNET_BCAST_MAGIC)
 			continue; /* invalid magic */
 
-		if (ntohl(msg->len) != ret) {
+		if (ntohl(msg->nodeList.len) + sizeof(evrnet_bcast_msg_t) != ret) {
 			fprintf(stderr,
 				"Malformed (or malicious?) packet received, "
 				"reported length (%d) != received (%d).  "
 				"Malicious packet attempting to buffer-overflow, "
 				"or just corruption on flakey network?  Ignoring.\n",
-				ntohl(msg->len), ret
+				(uint32_t)(ntohl(msg->nodeList.len) + sizeof(evrnet_bcast_msg_t)), ret
 			);
 			continue; /* length mismatch */
 		}
@@ -204,7 +204,7 @@ int PLAT_NetCheckBcastData(evrnet_bcast_msg_t *msg) {
 int PLAT_NetDoBroadcast(evrnet_bcast_msg_t *msg) {
 	int ret, i;
 	for (i = 0; i < knownIfaces; i++) {
-		ret = sendto(bcastSock, msg, ntohl(msg->len), 0,
+		ret = sendto(bcastSock, msg, ntohl(msg->nodeList.len) + sizeof(evrnet_bcast_msg_t), 0,
 			(struct sockaddr*)&bcastAddr[i], addrlen);
 		if (ret < 0) {
 			perror("sendto");

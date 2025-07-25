@@ -27,7 +27,13 @@ typedef struct {
 	 * 7.  u64[2], node UUID
 	 * 8.  char[], EverythingNet version
 	 * 9.  padding to 4 byte alignment
-	 * 10. PLAT_Info (TODO: need to convert it to use arrays instead of pointers for this, ofc)
+	 * 10. packed PLAT_Info
+	 *     a. u32, cap
+	 *     b. i32, memSz
+	 *     c. char[], os
+	 *     d. char[], arch
+	 *     e. char[], cpu
+	 *     f. char[], gpu
 	 * 11. padding to 8 byte alignment
 	 * 12. [end of entry, next entry follows immediately after]
 	 */

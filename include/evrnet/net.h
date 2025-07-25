@@ -8,7 +8,6 @@
 
 #define EVRNET_BCAST_PORT 6000
 #define EVRNET_BCAST_MAGIC 0x92DCC748
-#define EVRNET_BCAST_HDR_V1 0x00000001
 
 /* Initialize the networking subsystem */
 extern void NET_Init(void);

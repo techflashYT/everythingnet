@@ -1,4 +1,5 @@
 #include "evrnet/cap.h"
+#include "evrnet/netType.h"
 #include "evrnet/plat.h"
 #include <stdio.h>
 #include <string.h>
@@ -46,26 +47,149 @@ void NODE_Init(void) {
 	strcpy(ENTRY_NODE_PLATINFO_GPU(e), PLAT_Info.gpu);
 
 	*ENTRY_SIZE(e) = ENTRY_CALC_SIZE(e);
+	NODE_NodeList->len += *ENTRY_SIZE(e) + 8;
+
+	/* now that we've calculated it all out, drop our memory usage */
+	NODE_NodeList = realloc(NODE_NodeList, NODE_NodeList->len);
+	e = NODE_NodeList->entries;
 
 	/* clear out the next few bytes */
 	memset(ENTRY_NEXT(e), 0, 8);
-
-	NODE_NodeList->len += *ENTRY_SIZE(e) + 8;
 }
 
-#ifdef EVRNET_CPU_IS_LE
-void NODE_ListToBE(void) {
+static void NODE_CheckLen(uint32_t len) {
+	if (len > (CONFIG_NET_MAX_PKT_KB * 1024) - sizeof(evrnet_bcast_msg_t)) {
+		/* Houston, we have a problem.
+		 * We don't have enough space the fit our known nodes list
+		 * into the buffer.
+		 *
+		 * No matter what we do, there isn't really any recovery from
+		 * this.  The node list can only really grow from here
+		 * (we'd need space to handle the disconnection packet to shrink it),
+		 * so we're likely to start *failing to recieve packets as well* by
+		 * the next iteration.
+		 *
+		 * Instead of trying to salvage the situation (we *very likely can't*),
+		 * bail out and give the user some (hopefully) helpful advice to
+		 * prevent us from getting into this jam in the first place.
+		 */
+		fprintf(stderr,
+			"Out of space to fit node list in packet! (overbudget by %d bytes)\r\n"
+			"Possible solutions:\r\n"
+			"  - Consider connecting less devices into the mesh\r\n"
+			"  - Consider reducing the length of device names\r\n"
+			"  - Rebuild EverythingNet for every device with a larger CONFIG_NET_MAX_PKT_KB (currently %dKB)\r\n"
+			"\r\n"
+			"We're pretty screwed, not much left to be done here - bailing out.\r\n",
+			(CONFIG_NET_MAX_PKT_KB * 1024) - len,
+			CONFIG_NET_MAX_PKT_KB
+		);
+		APP_CleanupAndExit(1);
+	}
+}
 
+
+#ifdef EVRNET_CPU_IS_LE
+static uint8_t *NODE_EntryToLE(uint8_t *e) {
+	int i;
+
+	/* convert the size */
+	*ENTRY_SIZE(e) = ntohs(*ENTRY_SIZE(e));
+
+	/* convert IPs */
+	for (i = 0; i < *ENTRY_NUM_IP(e); i++)
+		ENTRY_NODE_IPS(e)[i] = ntohl(ENTRY_NODE_IPS(e)[i]);
+
+	/* convert UUIDs */
+	ENTRY_NODE_UUID(e)[0] = ntohq(ENTRY_NODE_UUID(e)[0]);
+	ENTRY_NODE_UUID(e)[1] = ntohq(ENTRY_NODE_UUID(e)[1]);
+
+	/* convert PLAT_Info */
+	*ENTRY_NODE_PLATINFO_CAP(e) = ntohl(*ENTRY_NODE_PLATINFO_CAP(e));
+	*ENTRY_NODE_PLATINFO_MEMSZ(e) = ntohl(*ENTRY_NODE_PLATINFO_MEMSZ(e));
+
+	/* get ready to move on */
+	e = ENTRY_NEXT(e);
+	return e;
+}
+
+static uint8_t *NODE_EntryToBE(uint8_t *e) {
+	/* save a pointer to the original, since we can't
+	 * byteswap the size if we want to use ENTRY_PREV(e)
+	 */
+	uint8_t *lastEntry = e;
+	int i;
+
+	/* convert IPs */
+	for (i = 0; i < *ENTRY_NUM_IP(e); i++)
+		ENTRY_NODE_IPS(e)[i] = htonl(ENTRY_NODE_IPS(e)[i]);
+
+	/* convert UUIDs */
+	ENTRY_NODE_UUID(e)[0] = htonq(ENTRY_NODE_UUID(e)[0]);
+	ENTRY_NODE_UUID(e)[1] = htonq(ENTRY_NODE_UUID(e)[1]);
+
+	/* convert PLAT_Info */
+	*ENTRY_NODE_PLATINFO_CAP(e) = htonl(*ENTRY_NODE_PLATINFO_CAP(e));
+	*ENTRY_NODE_PLATINFO_MEMSZ(e) = htonl(*ENTRY_NODE_PLATINFO_MEMSZ(e));
+
+	/* get ready to move on */
+	e = ENTRY_PREV(e);
+
+	/* convert the size now that we've used it */
+	*ENTRY_SIZE(lastEntry) = htons(*ENTRY_SIZE(lastEntry));
+
+	return e;
+}
+
+void NODE_ListToBE(void) {
+	uint8_t *e = NODE_NodeList->entries, *lastEntry;
+	int i;
+	while (*e) {
+		lastEntry = e;
+		e = ENTRY_NEXT(e);
+	}
+	e = lastEntry;
+
+	/* work backwards, converting every entry to BE.
+	 * Must happen this way since entries inherently
+	 * depend on previous ones in order to traverse
+	 */
+	while (e >= NODE_NodeList->entries) {
+		e = NODE_EntryToBE(e);
+	}
+
+	NODE_NodeList->version = htonl(NODE_NodeList->version);
+	NODE_NodeList->len = htonl(NODE_NodeList->len);
 }
 
 void NODE_ListToNative(void) {
+	uint8_t *e = NODE_NodeList->entries;
+	int i;
 
+	/* work forwards, converting every entry to native (LE).
+	 * Must happen this way since entries inherently
+	 * depend on previous ones in order to traverse
+	 */
+	while (*ENTRY_SIZE(e) != 0)
+		e = NODE_EntryToLE(e);
+
+	NODE_NodeList->version = ntohl(NODE_NodeList->version);
+	NODE_NodeList->len = ntohl(NODE_NodeList->len);
+}
+
+static uint8_t *NODE_EntryToNative(uint8_t *e) {
+	return NODE_EntryToLE(e);
+}
+#else
+static uint8_t *NODE_EntryToNative(uint8_t *e) {
+	return e;
 }
 #endif
 
 void NODE_CheckForNewNodes(evrnet_bcast_msg_t *msg) {
 	nodeList_t *nl;
 	uint8_t *e;
+	uint8_t *_e;
 	int i = 0, numIPs;
 	char nameTemp[256];
 	char evrnetVer[64];
@@ -76,9 +200,12 @@ void NODE_CheckForNewNodes(evrnet_bcast_msg_t *msg) {
 	memset(nameTemp, 0, sizeof(nameTemp));
 	memset(evrnetVer, 0, sizeof(evrnetVer));
 
+	NODE_EntryToNative(e);
+
 	/* 0 size = end of list */
 	while (*(uint16_t *)e != 0) {
-		printf("entry size: %u\n", *((uint16_t *)e));
+		_e = e;
+		printf("size value: %u\n", *((uint16_t *)e));
 		e += 2;
 		printf("num IPS: %u\n", *e);
 		numIPs = *e;
@@ -99,7 +226,6 @@ void NODE_CheckForNewNodes(evrnet_bcast_msg_t *msg) {
 			printf("IP address: %s\n", ip);
 			e += 4;
 		}
-		e++;
 
 		/* alignment */
 		e = ALIGN8(e);
