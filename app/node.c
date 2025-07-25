@@ -29,6 +29,8 @@ void NODE_Init(void) {
 	NODE_NodeList->len = sizeof(nodeList_t);
 	NODE_NodeList->version = EVRNET_NODELIST_V1;
 
+	memset((uint8_t *)((uintptr_t)NODE_NodeList + sizeof(nodeList_t)), 0, 4096);
+
 	/* set up local entry */
 	e = NODE_NodeList->entries;
 	*ENTRY_NUM_IP(e) = 0;
