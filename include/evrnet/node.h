@@ -102,10 +102,6 @@ extern void NODE_ListToBE(nodeList_t *nl);
 	(x + *ENTRY_SIZE(x)) \
 ))
 
-#define ENTRY_PREV(x) ((uint8_t *)( \
-	(x - *ENTRY_SIZE(x)) \
-))
-
 #define ENTRY_CALC_SIZE(x) ((uint16_t)( \
 	ALIGN8( \
 		( \

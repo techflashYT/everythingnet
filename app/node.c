@@ -125,7 +125,7 @@ static void NODE_CheckLen(uint32_t len) {
 
 
 #ifdef EVRNET_CPU_IS_LE
-static uint8_t *NODE_EntryToLE(uint8_t *e) {
+static void NODE_EntryToLE(uint8_t *e) {
 	int i;
 
 	/* convert the size */
@@ -142,17 +142,9 @@ static uint8_t *NODE_EntryToLE(uint8_t *e) {
 	/* convert PLAT_Info */
 	*ENTRY_NODE_PLATINFO_CAP(e) = ntohl(*ENTRY_NODE_PLATINFO_CAP(e));
 	*ENTRY_NODE_PLATINFO_MEMSZ(e) = ntohl(*ENTRY_NODE_PLATINFO_MEMSZ(e));
-
-	/* get ready to move on */
-	e = ENTRY_NEXT(e);
-	return e;
 }
 
-static uint8_t *NODE_EntryToBE(uint8_t *e) {
-	/* save a pointer to the original, since we can't
-	 * byteswap the size yet if we want to use ENTRY_PREV(e)
-	 */
-	uint8_t *tmp = e;
+static void NODE_EntryToBE(uint8_t *e) {
 	int i;
 
 	/* convert IPs */
@@ -167,13 +159,8 @@ static uint8_t *NODE_EntryToBE(uint8_t *e) {
 	*ENTRY_NODE_PLATINFO_CAP(e) = htonl(*ENTRY_NODE_PLATINFO_CAP(e));
 	*ENTRY_NODE_PLATINFO_MEMSZ(e) = htonl(*ENTRY_NODE_PLATINFO_MEMSZ(e));
 
-	/* get ready to move on */
-	e = ENTRY_PREV(e);
-
-	/* convert the size now that we've used it */
-	*ENTRY_SIZE(tmp) = htons(*ENTRY_SIZE(tmp));
-
-	return e;
+	/* convert the size */
+	*ENTRY_SIZE(e) = htons(*ENTRY_SIZE(e));
 }
 
 void NODE_ListToBE(nodeList_t *nl) {
@@ -217,17 +204,17 @@ void NODE_ListToNative(nodeList_t *nl) {
 	 * Must happen this way since entries inherently
 	 * depend on previous ones in order to traverse
 	 */
-	while ((uintptr_t)e < ((uintptr_t)nl->entries + (nl->len - sizeof(nodeList_t))))
-		e = NODE_EntryToLE(e);
+	while ((uintptr_t)e < ((uintptr_t)nl->entries + (nl->len - sizeof(nodeList_t)))) {
+		NODE_EntryToLE(e);
+		e = ENTRY_NEXT(e);
+	}
 }
 
-static uint8_t *NODE_EntryToNative(uint8_t *e) {
-	return NODE_EntryToLE(e);
+static void NODE_EntryToNative(uint8_t *e) {
+	NODE_EntryToLE(e);
 }
 #else
-static uint8_t *NODE_EntryToNative(uint8_t *e) {
-	return e;
-}
+#define NODE_EntryToNative(x) (void)0
 #endif
 
 static void NODE_MaybeAddEntry(uint8_t *e) {
