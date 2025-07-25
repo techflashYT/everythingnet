@@ -230,10 +230,17 @@ void NODE_CheckForNewNodes(evrnet_bcast_msg_t *msg) {
 		/* alignment */
 		e = ALIGN8(e);
 
+		#ifdef EVRNET_CPU_IS_64BIT
 		printf("UUID 0: 0x%16lX\n", *((uint64_t *)e));
 		e += 8;
 		printf("UUID 1: 0x%16lX\n", *((uint64_t *)e));
 		e += 8;
+		#elif defined(EVRNET_CPU_IS_32BIT)
+		printf("UUID 0: 0x%16llX\n", *((uint64_t *)e));
+		e += 8;
+		printf("UUID 1: 0x%16llX\n", *((uint64_t *)e));
+		e += 8;
+		#endif
 
 		i = 0;
 		while (*e) {
