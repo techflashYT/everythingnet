@@ -49,7 +49,7 @@ extern int PLAT_Init(int argc, char *argv[]);
 #  if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 #    define EVRNET_CPU_IS_LE 1
 #  elif defined(__ORDER_BIG_ENDIAN__)
-#    if __BYTE_ORDER == __ORDER_BIG_ENDIAN__
+#    if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 #      define EVRNET_CPU_IS_BE 1
 #    endif
 #  endif
