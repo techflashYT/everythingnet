@@ -236,7 +236,6 @@ static void NODE_MaybeAddEntry(uint8_t *e) {
 	uint8_t *knownEntry, *lastEntry;
 	uint32_t lastEntryOffset;
 
-	puts("maybeAddNewEntry");
 	knownEntry = nl->entries;
 
 	/* do we know this UUID? */
@@ -255,7 +254,6 @@ static void NODE_MaybeAddEntry(uint8_t *e) {
 
 	/* yes, get back to business */
 	if (known) {
-		puts("entry known");
 		return;
 	}
 
@@ -263,7 +261,6 @@ static void NODE_MaybeAddEntry(uint8_t *e) {
 	knownEntry = nl->entries;
 
 	/* get the last entry of the list */
-	puts("finding end");
 	while (((uintptr_t)knownEntry - (uintptr_t)nl->entries) < (nl->len - sizeof(nodeList_t))) {
 		lastEntry = knownEntry;
 		knownEntry = ENTRY_NEXT(knownEntry);
@@ -278,7 +275,6 @@ static void NODE_MaybeAddEntry(uint8_t *e) {
 	lastEntryOffset = (uintptr_t)lastEntry - (uintptr_t)nl->entries;
 
 	/* realloc the nodelist to fit our new node */
-	puts("realloc");
 	nl->len += *ENTRY_SIZE(e);
 	NODE_NodeList = realloc(NODE_NodeList, nl->len);
 
@@ -290,7 +286,6 @@ static void NODE_MaybeAddEntry(uint8_t *e) {
 	knownEntry = ENTRY_NEXT(lastEntry);
 
 	/* copy our new entry over */
-	printf("copying %d bytes into node table\n", *ENTRY_SIZE(e));
 	memcpy(knownEntry, e, *ENTRY_SIZE(e));
 
 	printf("Found new node: %s!\n", ENTRY_NODE_NAME(e));

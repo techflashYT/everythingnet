@@ -178,11 +178,6 @@ int PLAT_NetCheckBcastData(evrnet_bcast_msg_t *msg) {
 		 * after we return, the platform glue must always return
 		 * the packet as-is.
 		 */
-		printf("got packet, magic = 0x%08X, magic swapped = 0x%08X\n",
-			msg->magic,
-			ntohl(msg->magic)
-		);
-
 		if (ntohl(msg->magic) != EVRNET_BCAST_MAGIC)
 			continue; /* invalid magic */
 
@@ -213,7 +208,6 @@ int PLAT_NetDoBroadcast(evrnet_bcast_msg_t *msg) {
 			perror("sendto");
 			return -1;
 		}
-		printf("sent %d bytes to iface %d\n", ret, i);
 	}
 
 	return 0;
