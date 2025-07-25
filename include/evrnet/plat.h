@@ -45,20 +45,19 @@ extern int PLAT_Init(int argc, char *argv[]);
  * - We have __BYTE_ORDER__ and __ORDER_BIG_ENDIAN__, and they are equal?
  * - __BIG_ENDIAN__ or __BIG_ENDIAN are defined?
  */
- #if defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__)
- #  if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
- #    define EVRNET_CPU_IS_LE 1
- #  else
- #    define EVRNET_CPU_IS_BE 1
- #  endif
- #elif defined(__BIG_ENDIAN__) || defined(_BIG_ENDIAN)
- #  define EVRNET_CPU_IS_BE 1
- #elif defined(__LITTLE_ENDIAN__) || defined(_LITTLE_ENDIAN)
- #  define EVRNET_CPU_IS_LE 1
- #else
- #  error "Unable to determine endianness for this platform, or endianness is neither big nor little"
- #endif
-
+#if defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__)
+#  if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#    define EVRNET_CPU_IS_LE 1
+#  else
+#    define EVRNET_CPU_IS_BE 1
+#  endif
+#elif defined(__BIG_ENDIAN__) || defined(_BIG_ENDIAN)
+#  define EVRNET_CPU_IS_BE 1
+#elif defined(__LITTLE_ENDIAN__) || defined(_LITTLE_ENDIAN)
+#  define EVRNET_CPU_IS_LE 1
+#else
+#  error "Unable to determine endianness for this platform, or endianness is neither big nor little"
+#endif
 
 #if defined(__i386__) || defined(__x86__) || defined(_M_IX86) || defined(__386__) || defined(__X86__) || defined(__DOS__)
 #define PLAT_STR_NATIVE PLAT_STR_X86
