@@ -52,8 +52,15 @@ int LINUX_GatherInfo() {
 		perror("fopen");
 		return -ENOENT;
 	}
+	#ifdef EVRNET_CPU_IS_64BIT
 	if (fscanf(fp, "%016lx", &NODE_LocalUUID[0]) != 1 ||
 		fscanf(fp, "%016lx", &NODE_LocalUUID[1]) != 1) {
+	#elif EVRNET_CPU_IS_32BIT
+	if (fscanf(fp, "%016llx", &NODE_LocalUUID[0]) != 1 ||
+		fscanf(fp, "%016llx", &NODE_LocalUUID[1]) != 1) {
+	#else
+	#error "Unknown format specifier for pulling UUID for this CPU"
+	#endif
 			fclose(fp);
 			perror("fscanf");
 			return -EINVAL;
