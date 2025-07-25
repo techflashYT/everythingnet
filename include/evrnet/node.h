@@ -109,7 +109,7 @@ extern void NODE_ListToBE(nodeList_t *nl);
 	ALIGN8( \
 		( \
 			((uintptr_t)ENTRY_NODE_PLATINFO_GPU(x) + \
-			strlen(ENTRY_NODE_PLATINFO_GPU(x) + 1)) - (uintptr_t)x \
+			strlen(ENTRY_NODE_PLATINFO_GPU(x)) + 1) - (uintptr_t)x \
 		) \
 	) \
 ))
