@@ -17,6 +17,40 @@ nodeList_t *NODE_NodeList;
 char NODE_LocalName[64];
 uint64_t NODE_LocalUUID[2];
 
+static void NODE_DumpEntry(uint8_t *e) {
+	int i;
+	char capTemp[256], ip[INET_ADDRSTRLEN];
+
+	printf("size value: %u\n", *ENTRY_SIZE(e));
+	printf("num IPs: %u\n", *ENTRY_NUM_IP(e));
+	printf("distance from sender: %u (%s)\n", *ENTRY_DISTANCE_FROM_ME(e), *ENTRY_DISTANCE_FROM_ME(e) == 0 ? "Local" : "Remote");
+	printf("node name: %s\n", ENTRY_NODE_NAME(e));
+
+	for (i = 0; i < *ENTRY_NUM_IP(e); i++) {
+		inet_ntop(AF_INET, &ENTRY_NODE_IPS(e)[i], ip, INET_ADDRSTRLEN);
+		printf("IP address: %s\n", ip);
+	}
+
+	#ifdef EVRNET_CPU_IS_64BIT
+	printf("UUID 0: 0x%16lX\n", ENTRY_NODE_UUID(e)[0]);
+	printf("UUID 1: 0x%16lX\n", ENTRY_NODE_UUID(e)[1]);
+	#elif defined(EVRNET_CPU_IS_32BIT)
+	printf("UUID 0: 0x%16llX\n", ENTRY_NODE_UUID(e)[0]);
+	printf("UUID 1: 0x%16llX\n", ENTRY_NODE_UUID(e)[1]);
+	#endif
+
+	printf("everythingnet version: %s\n", ENTRY_NODE_EVRNET_VER(e));
+
+	CAP_Cap2Str(*ENTRY_NODE_PLATINFO_CAP(e), capTemp);
+	printf("cap: 0x%08X, %s\n", *ENTRY_NODE_PLATINFO_CAP(e), capTemp);
+	printf("memsz: %dKB\n", *ENTRY_NODE_PLATINFO_MEMSZ(e));
+	printf("devname: %s\n", ENTRY_NODE_PLATINFO_NAME(e));
+	printf("os: %s\n", ENTRY_NODE_PLATINFO_OS(e));
+	printf("arch: %s\n", ENTRY_NODE_PLATINFO_ARCH(e));
+	printf("cpu: %s\n", ENTRY_NODE_PLATINFO_CPU(e));
+	printf("gpu: %s\n", ENTRY_NODE_PLATINFO_GPU(e));
+}
+
 void NODE_Init(void) {
 	uint8_t *e;
 	/* generous buffer to make our local entry */
@@ -187,47 +221,13 @@ static uint8_t *NODE_EntryToNative(uint8_t *e) {
 #endif
 
 void NODE_CheckForNewNodes(evrnet_bcast_msg_t *msg) {
-	nodeList_t *nl;
-	uint8_t *e;
-	int i = 0;
-	char capTemp[256];
-	char ip[INET_ADDRSTRLEN];
-	puts("trying to parse nodes");
-	nl = &msg->nodeList;
-	e = nl->entries;
+	nodeList_t *nl = &msg->nodeList;
+	uint8_t *e = nl->entries;
 
 	NODE_ListToNative(nl);
 
 	while (((uintptr_t)e - (uintptr_t)nl->entries) < (nl->len - sizeof(nodeList_t))) {
-		printf("size value: %u\n", *ENTRY_SIZE(e));
-		printf("num IPs: %u\n", *ENTRY_NUM_IP(e));
-		printf("distance from sender: %u (%s)\n", *ENTRY_DISTANCE_FROM_ME(e), *ENTRY_DISTANCE_FROM_ME(e) == 0 ? "Local" : "Remote");
-		printf("node name: %s\n", ENTRY_NODE_NAME(e));
-
-		for (i = 0; i < *ENTRY_NUM_IP(e); i++) {
-			inet_ntop(AF_INET, &ENTRY_NODE_IPS(e)[i], ip, INET_ADDRSTRLEN);
-			printf("IP address: %s\n", ip);
-		}
-
-		#ifdef EVRNET_CPU_IS_64BIT
-		printf("UUID 0: 0x%16lX\n", ENTRY_NODE_UUID(e)[0]);
-		printf("UUID 1: 0x%16lX\n", ENTRY_NODE_UUID(e)[1]);
-		#elif defined(EVRNET_CPU_IS_32BIT)
-		printf("UUID 0: 0x%16llX\n", ENTRY_NODE_UUID(e)[0]);
-		printf("UUID 1: 0x%16llX\n", ENTRY_NODE_UUID(e)[1]);
-		#endif
-
-		printf("everythingnet version: %s\n", ENTRY_NODE_EVRNET_VER(e));
-
-		CAP_Cap2Str(*ENTRY_NODE_PLATINFO_CAP(e), capTemp);
-		printf("cap: 0x%08X, %s\n", *ENTRY_NODE_PLATINFO_CAP(e), capTemp);
-		printf("memsz: %dKB\n", *ENTRY_NODE_PLATINFO_MEMSZ(e));
-		printf("devname: %s\n", ENTRY_NODE_PLATINFO_NAME(e));
-		printf("os: %s\n", ENTRY_NODE_PLATINFO_OS(e));
-		printf("arch: %s\n", ENTRY_NODE_PLATINFO_ARCH(e));
-		printf("cpu: %s\n", ENTRY_NODE_PLATINFO_CPU(e));
-		printf("gpu: %s\n", ENTRY_NODE_PLATINFO_GPU(e));
-
+		NODE_DumpEntry(e);
 		e = ENTRY_NEXT(e);
 	}
 }
