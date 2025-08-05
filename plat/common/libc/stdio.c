@@ -1,7 +1,8 @@
 /*
- * EverythingNet Internal Libc - Stdio functions
+ * EverythingNet - Internal Libc - stdio
  * Copyright (C) 2025 Techflash
  */
+
 #include <stdio.h>
 #include "internal_libc.h"
 

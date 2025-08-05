@@ -1,3 +1,8 @@
+/*
+ * EverythingNet - Linux Platform Specific Features - Info Gathering
+ * Copyright (C) 2025 Techflash
+ */
+
 #include "evrnet/node.h"
 #include <asm-generic/errno-base.h>
 #include <stdio.h>

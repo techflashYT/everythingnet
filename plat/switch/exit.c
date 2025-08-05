@@ -1,3 +1,8 @@
+/*
+ * EverythingNet - Switch Platform Specific Features - Cleanup/Exit Handling
+ * Copyright (C) 2025 Techflash
+ */
+
 #include <unistd.h>
 #include <stdlib.h>
 

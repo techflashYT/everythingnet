@@ -1,5 +1,5 @@
 /*
- * EverythingNet - Application exit handling
+ * EverythingNet - Main App - Exit handling
  * Copyright (C) 2025 Techflash
  */
 #include <stdio.h>

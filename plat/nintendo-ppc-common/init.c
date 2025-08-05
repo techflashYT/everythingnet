@@ -1,5 +1,7 @@
-/*                                                                                       
- * Nintendo GameCube/Wii libogc platform initialization.
+/*
+ * EverythingNet - Nintendo GameCube/Wii Common Platform Specific Features - Initialization
+ * Copyright (C) 2025 Techflash
+ *
  * Modified from devkitPro wii-examples 'template'.
  */
 

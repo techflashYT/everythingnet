@@ -1,3 +1,8 @@
+/*
+ * EverythingNet - Common headers - Global state handling
+ * Copyright (C) 2025 Techflash
+ */
+
 #ifndef _STATE_H
 #define _STATE_H
 

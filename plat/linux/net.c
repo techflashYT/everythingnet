@@ -1,3 +1,8 @@
+/*
+ * EverythingNet - Linux Platform Specific Features - Networking Support
+ * Copyright (C) 2025 Techflash
+ */
+
 #include <asm-generic/errno-base.h>
 #include <asm-generic/errno.h>
 #include <stdio.h>

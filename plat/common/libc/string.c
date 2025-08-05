@@ -1,3 +1,8 @@
+/*
+ * EverythingNet - Internal Libc - string
+ * Copyright (C) 2023-2025 Techflash
+ */
+
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>

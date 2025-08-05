@@ -1,3 +1,8 @@
+/*
+ * EverythingNet - Common headers - Capabilities
+ * Copyright (C) 2025 Techflash
+ */
+
 #ifndef _CAP_H
 #define _CAP_H
 

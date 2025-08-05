@@ -1,3 +1,8 @@
+/*
+ * EverythingNet - Common headers - Platform specific features - Linux - Graphics
+ * Copyright (C) 2025 Techflash
+ */
+
 #ifndef _LINUX_GFX_H
 #define _LINUX_GFX_H
 

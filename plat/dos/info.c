@@ -1,3 +1,8 @@
+/*
+ * EverythingNet - DOS Platform Specific Features - Info Gathering
+ * Copyright (C) 2025 Techflash
+ */
+
 #include <evrnet/plat.h>
 #include <evrnet/cap.h>
 

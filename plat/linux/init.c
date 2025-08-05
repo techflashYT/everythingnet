@@ -1,3 +1,8 @@
+/*
+ * EverythingNet - Linux Platform Specific Features - Initialization
+ * Copyright (C) 2025 Techflash
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 

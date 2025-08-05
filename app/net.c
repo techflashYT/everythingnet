@@ -1,3 +1,8 @@
+/*
+ * EverythingNet - Main App - Networking core layer
+ * Copyright (C) 2025 Techflash
+ */
+
 #include <netinet/in.h>
 #include <stdio.h>
 #include <stdbool.h>

@@ -1,3 +1,8 @@
+/*
+ * EverythingNet - Common headers - Node types
+ * Copyright (C) 2025 Techflash
+ */
+
 #ifndef _NODETYPE_H
 #define _NODETYPE_H
 

@@ -1,3 +1,8 @@
+/*
+ * EverythingNet - Switch Platform Specific Features - Initialization
+ * Copyright (C) 2025 Techflash
+ */
+
 #include <stdio.h>
 #include <unistd.h>
 #include <switch.h>

@@ -1,3 +1,8 @@
+/*
+ * EverythingNet - DOS Platform Specific Features - Initialization
+ * Copyright (C) 2025 Techflash
+ */
+
 #include <stdlib.h>
 
 #include <evrnet/state.h>

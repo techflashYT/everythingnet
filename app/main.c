@@ -1,5 +1,5 @@
 /*
- * EverythingNet - Main App Startup
+ * EverythingNet - Main App - Initialization and main loop
  * Copyright (C) 2025 Techflash
  */
 

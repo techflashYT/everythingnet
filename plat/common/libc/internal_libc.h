@@ -1,3 +1,8 @@
+/*
+ * EverythingNet - Internal Libc - internal functionality
+ * Copyright (C) 2025 Techflash
+ */
+
 #include <stddef.h>
 
 extern void SYS_putchar(int c);

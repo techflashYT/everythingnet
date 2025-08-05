@@ -1,3 +1,8 @@
+/*
+ * EverythingNet - Common headers - Platform specific features - Nintendo GameCube/Wii Common
+ * Copyright (C) 2025 Techflash
+ */
+
 #ifndef _NINTENDO_PPC_H
 #define _NINTENDO_PPC_H
 

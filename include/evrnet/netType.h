@@ -1,3 +1,8 @@
+/*
+ * EverythingNet - Common headers - Networking types
+ * Copyright (C) 2025 Techflash
+ */
+
 #ifndef _NETTYPE_H
 #define _NETTYPE_H
 

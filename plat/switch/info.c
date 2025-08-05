@@ -1,3 +1,8 @@
+/*
+ * EverythingNet - Switch Platform Specific Features - Info Gathering
+ * Copyright (C) 2025 Techflash
+ */
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>

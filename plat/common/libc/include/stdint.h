@@ -1,3 +1,8 @@
+/*
+ * EverythingNet - Internal Libc - stdint
+ * Copyright (C) 2023-2025 Techflash
+ */
+
 typedef char int8_t;
 typedef unsigned char uint8_t;
 

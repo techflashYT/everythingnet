@@ -1,3 +1,8 @@
+/*
+ * EverythingNet - Internal Libc - stdlib
+ * Copyright (C) 2025 Techflash
+ */
+
 #include <stddef.h>
 #include "internal_libc.h"
 

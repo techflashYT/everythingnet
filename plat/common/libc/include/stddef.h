@@ -1,3 +1,8 @@
+/*
+ * EverythingNet - Internal Libc - stddef
+ * Copyright (C) 2025 Techflash
+ */
+
 typedef long unsigned int size_t;
 typedef size_t ptrdiff_t;
 typedef size_t uintptr_t;

@@ -1,3 +1,8 @@
+/*
+ * EverythingNet - Linux Platform Specific Features - Info Gathering - Device Name
+ * Copyright (C) 2025 Techflash
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

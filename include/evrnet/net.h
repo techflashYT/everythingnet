@@ -1,3 +1,8 @@
+/*
+ * EverythingNet - Common headers - Networking
+ * Copyright (C) 2025 Techflash
+ */
+
 #ifndef _NET_H
 #define _NET_H
 

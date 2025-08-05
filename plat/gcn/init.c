@@ -1,4 +1,9 @@
 /*
+ * EverythingNet - GameCube Platform Specific Features - Initialization
+ * Copyright (C) 2025 Techflash
+ */
+
+/*
  * Nintendo GameCube libogc platform initialization.
  */
 #include <gccore.h>

@@ -1,3 +1,8 @@
+/*
+ * EverythingNet - Common headers - Platform specific features
+ * Copyright (C) 2025 Techflash
+ */
+
 #ifndef _PLAT_H
 #define _PLAT_H
 #include <stdint.h> /* for 32/64-bit check */

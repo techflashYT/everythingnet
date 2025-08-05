@@ -1,4 +1,9 @@
 /*
+ * EverythingNet - Wii Platform Specific Features - Initialization
+ * Copyright (C) 2025 Techflash
+ */
+
+/*
  * Nintendo Wii libogc platform initialization.
  */
 #include <gccore.h>

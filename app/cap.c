@@ -1,5 +1,5 @@
 /*
- * EverythingNet - Platform capabilities support
+ * EverythingNet - Main App - Platform capabilities support
  * Copyright (C) 2025 Techflash
  */
 #include <string.h>

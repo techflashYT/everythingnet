@@ -1,3 +1,8 @@
+/*
+ * EverythingNet - Main App - Node entry and node list handling
+ * Copyright (C) 2025 Techflash
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
