@@ -49,7 +49,7 @@ int LINUX_GatherInfo() {
 
 	fp = fopen("/etc/machine-id", "r");
 	if (!fp) {
-		perror("fopen");
+		perror("fopen /etc/machine-id");
 		return -ENOENT;
 	}
 	#ifdef EVRNET_CPU_IS_64BIT

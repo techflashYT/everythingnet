@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
 	if (ret != 0) {
 		printf("PLAT_Init() failed: %d\r\n", ret);
 		PLAT_FlushOutput();
-		APP_CleanupAndExit(0);
+		APP_CleanupAndExit(ret);
 	}
 
 	puts("EverythingNet starting up on...");
