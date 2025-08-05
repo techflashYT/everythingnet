@@ -26,27 +26,28 @@ void NET_Init(void) {
 void NET_HandleBcast(void) {
 	int ret;
 
-	/* Check for anything from other nodes */
-	ret = PLAT_NetCheckBcastData(msg);
-	if (ret != 1)
-		goto tx;
+	while (1) {
+		/* Check for anything from other nodes */
+		ret = PLAT_NetCheckBcastData(msg);
+		if (ret != 1)
+			break;
 
-	/* Swap the data back to native endianess */
-	msg->magic = ntohl(msg->magic);
-	msg->crc = ntohl(msg->crc);
-	msg->uuid[0] = ntohq(msg->uuid[0]);
-	msg->uuid[1] = ntohq(msg->uuid[1]);
+		/* Swap the data back to native endianess */
+		msg->magic = ntohl(msg->magic);
+		msg->crc = ntohl(msg->crc);
+		msg->uuid[0] = ntohq(msg->uuid[0]);
+		msg->uuid[1] = ntohq(msg->uuid[1]);
 
-	if (msg->uuid[0] == NODE_LocalUUID[0] &&
-		msg->uuid[1] == NODE_LocalUUID[1])
-		goto tx; /* loopback */
+		if (msg->uuid[0] == NODE_LocalUUID[0] &&
+			msg->uuid[1] == NODE_LocalUUID[1])
+			break; /* loopback */
 
-	/* TODO: verify CRC */
+		/* TODO: verify CRC */
 
-	/* Check for new nodes that may have been discovered in this message */
-	NODE_CheckForNewNodes(msg);
+		/* Check for new nodes that may have been discovered in this message */
+		NODE_CheckForNewNodes(msg);
+	}
 
-tx:
 	if (counter % 15 != 0)
 		goto out;
 
