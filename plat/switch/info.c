@@ -12,6 +12,7 @@
 #include <switch/services/sm.h>
 #include <switch/services/set.h>
 
+#include <evrnet/node.h>
 #include <evrnet/cap.h>
 #include <evrnet/plat.h>
 #include <evrnet/state.h>
@@ -37,11 +38,11 @@ int SWITCH_GatherInfo() {
 	uint64_t memSz;
 	SetSysFirmwareVersion hosVer;
 	SetSysProductModel model;
+	SetSysDeviceNickName nick;
 	Result result;
 
 	/* get memory size */
 	svcGetInfo(&memSz, InfoType_TotalMemorySize, CUR_PROCESS_HANDLE, 0);
-	printf("memsz: %lu\n", memSz);
 	PLAT_Info.memSz = memSz / 1024;
 
 	/* get Horizon OS version */
@@ -53,7 +54,6 @@ int SWITCH_GatherInfo() {
 		perror("malloc");
 		APP_CleanupAndExit(1);
 	}
-
 
 	strcpy(PLAT_Info.os, "Nintendo Horizon OS ");
 	if (R_SUCCEEDED(result))
@@ -71,8 +71,6 @@ int SWITCH_GatherInfo() {
 		puts("Failed to get Switch console type");
 		goto noModel;
 	}
-
-	printf("model (real): %d\n", model);
 
 	switch (model) {
 		case SetSysProductModel_Nx:
@@ -101,7 +99,15 @@ int SWITCH_GatherInfo() {
 			PLAT_Info.gpu  = GPU_UNK;
 			break;
 	}
-
 noModel:
+
+	result = setsysGetDeviceNickname(&nick);
+	if (!R_SUCCEEDED(result)) {
+		strcpy(NODE_LocalName, "Unknown");
+		puts("Failed to get Switch nickname");
+	}
+
+	strcpy(NODE_LocalName, nick.nickname);
+
 	return 0;
 }
