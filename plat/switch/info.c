@@ -39,6 +39,7 @@ int SWITCH_GatherInfo() {
 	SetSysFirmwareVersion hosVer;
 	SetSysProductModel model;
 	SetSysDeviceNickName nick;
+	SetSysSerialNumber serial;
 	Result result;
 
 	/* get memory size */
@@ -105,9 +106,20 @@ noModel:
 	if (!R_SUCCEEDED(result)) {
 		strcpy(NODE_LocalName, "Unknown");
 		puts("Failed to get Switch nickname");
+		goto noNick;
 	}
 
 	strcpy(NODE_LocalName, nick.nickname);
+
+noNick:
+	result = setsysGetSerialNumber(&serial);
+	if (!R_SUCCEEDED(result)) {
+		memcpy(NODE_LocalUUID, "Unk_NtendoSwitch", 16);
+		puts("Failed to get Switch serial number");
+		goto noSerial;
+	}
+	memcpy(NODE_LocalUUID, serial.number, 16);
+noSerial:
 
 	return 0;
 }
