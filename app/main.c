@@ -3,7 +3,6 @@
  * Copyright (C) 2025 Techflash
  */
 
-#include <bits/time.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <unistd.h>
