@@ -47,6 +47,20 @@ int LINUX_GatherInfo() {
 	strncat(PLAT_Info.os, utsname.release, 128 - 7); /* 128 - "Linux " */
 	strncpy(NODE_LocalName, utsname.nodename, sizeof(NODE_LocalName));
 
+	/* XXX: HACK!  On Android, /etc/machine-id won't exist,
+	 * so just generate something random to get it running.
+	 * This is against the platform guidelines, but it's
+	 * just temporary.
+	 */
+	#ifdef __ANDROID__
+	NODE_LocalUUID[0] = rand();
+	NODE_LocalUUID[0] <<= 32;
+	NODE_LocalUUID[0] += rand();
+
+	NODE_LocalUUID[1] = rand();
+	NODE_LocalUUID[1] <<= 32;
+	NODE_LocalUUID[1] += rand();
+	#else
 	fp = fopen("/etc/machine-id", "r");
 	if (!fp) {
 		perror("fopen /etc/machine-id");
@@ -66,6 +80,7 @@ int LINUX_GatherInfo() {
 			return -EINVAL;
 	}
 	fclose(fp);
+	#endif
 
 	ret = LINUX_GatherCPUInfo();
 	if (ret)
