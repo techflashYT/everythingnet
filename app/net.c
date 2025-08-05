@@ -23,6 +23,7 @@ void NET_Init(void) {
 	msg = malloc(CONFIG_NET_MAX_PKT_KB * 1024);
 	if (!msg) {
 		perror("malloc");
+		PLAT_FlushOutput();
 		APP_CleanupAndExit(1);
 	}
 	memset(msg, 0, CONFIG_NET_MAX_PKT_KB * 1024);

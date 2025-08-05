@@ -128,6 +128,7 @@ int LINUX_NetInit(void) {
 		 */
 		bcastMask = ((struct sockaddr_in *)ifaces->ifa_netmask)->sin_addr.s_addr;
 		bcastMask = ~bcastMask;
+		printf("bcastMask = 0x%08X\n", bcastMask);
 		((struct sockaddr_in *)ifaces->ifa_addr)->sin_addr.s_addr |= bcastMask;
 
 		/* get IP */

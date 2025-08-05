@@ -8,6 +8,7 @@
 #include <switch.h>
 #include <evrnet/plat.h>
 #include <evrnet/plat/switch.h>
+#include <evrnet/plat/switch_net.h>
 #include <evrnet/state.h>
 
 PadState SWITCH_GamePadState;
@@ -30,5 +31,8 @@ int PLAT_Init(int argc, char *argv[]) {
 
 	/* gather console info */
 	SWITCH_GatherInfo();
+
+	/* init networking */
+	SWITCH_NetInit();
 	return 0;
 }

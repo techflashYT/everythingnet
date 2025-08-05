@@ -74,6 +74,9 @@ int main(int argc, char *argv[]) {
 		/* actually do the networking */
 		NET_HandleBcast();
 
+		/* show anything we got */
+		PLAT_FlushOutput();
+
 		/* TODO: some way to make keepRunning go false on request */
 
 		/* get end time, to calculate time spent doing work
