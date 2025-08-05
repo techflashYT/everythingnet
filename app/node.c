@@ -225,8 +225,9 @@ static void NODE_EntryToNative(uint8_t *e) {
 static void NODE_MaybeAddEntry(uint8_t *e) {
 	bool known = false;
 	nodeList_t *nl = NODE_NodeList;
-	uint8_t *knownEntry, *lastEntry;
+	uint8_t *knownEntry, *lastEntry, *hoplist;
 	uint32_t lastEntryOffset;
+	int i, ret, shortestPath, shortestPathIdx, sizeDiff, hopListSize;
 
 	knownEntry = nl->entries;
 
@@ -246,6 +247,99 @@ static void NODE_MaybeAddEntry(uint8_t *e) {
 
 	/* yes, get back to business */
 	if (known) {
+		/* but wait, does the sender have a shorter route than we do? */
+		if (*ENTRY_DISTANCE_FROM_SENDER(e) > *ENTRY_DISTANCE_FROM_SENDER(knownEntry))
+			return; /* nope, they're actually longer :( */
+
+		else if (*ENTRY_DISTANCE_FROM_SENDER(e) == *ENTRY_DISTANCE_FROM_SENDER(knownEntry)) {
+			/* equal distance... same hops? */
+			if (memcmp(ENTRY_HOPLIST(e), ENTRY_HOPLIST(knownEntry), sizeof(uint64_t) * 2 * *ENTRY_DISTANCE_FROM_SENDER(e)) == 0)
+				return; /* same hops, we learn nothing new */
+			else
+				goto checkHops; /* different hops?  check them */
+		}
+
+		else if (*ENTRY_DISTANCE_FROM_SENDER(e) < *ENTRY_DISTANCE_FROM_SENDER(knownEntry))
+			goto checkHops; /* ooh, less hops?  check them */
+
+checkHops:
+		/* we got here with newDistance < knownDistance, or (newDistance == knownDistance && differentHops) */
+
+		/* assume that we already know the shortest path unless we can prove otherwise */
+		shortestPath = *ENTRY_DISTANCE_FROM_SENDER(knownEntry);
+
+		/* work backwards, starting at the target node */
+		for (i = *ENTRY_DISTANCE_FROM_SENDER(e); i > 0; i--) {
+			ret = NODE_ShortestPathTo(ENTRY_HOPLIST(e), i);
+			if (ret < shortestPath) {
+				shortestPath = ret;
+				shortestPathIdx = i;
+			}
+		}
+
+		/* did we actually find something? */
+		if (shortestPath >= *ENTRY_DISTANCE_FROM_SENDER(knownEntry))
+			return; /* no, it's the same or worse */
+
+		/* yes!  we've determined a shorter path to this node */
+		sizeDiff = ((*ENTRY_DISTANCE_FROM_SENDER(knownEntry) - shortestPath) * sizeof(uint64_t) * 2);
+		hopListSize = *ENTRY_DISTANCE_FROM_SENDER(knownEntry) * sizeof(uint64_t) * 2;
+		hoplist = malloc(hopListSize);
+		if (!hoplist) {
+			perror("malloc");
+			APP_CleanupAndExit(1);
+		}
+
+		/* temporarily save original hoplist */
+		memcpy(hoplist, ENTRY_HOPLIST(knownEntry), hopListSize);
+
+		/* write new hoplist, given that shortest path starts from index shortestPath */
+		NODE_WriteShortestPathTo(ENTRY_HOPLIST(knownEntry), hoplist, shortestPath);
+
+		/* free the temporary memory we allocated for the hoplist */
+		free(hoplist);
+
+		/* !!!!! we are about to move the ENTIRE NODELIST, so we had better get this dance right !!!!! */
+
+		/* step 1. move all data that exists after the end of the original hoplist backwards to line up again */
+		memmove(ENTRY_HOPLIST(knownEntry) + (shortestPath * sizeof(uint64_t) * 2) /* write to end of new hoplist */,
+			ENTRY_HOPLIST(knownEntry) + hopListSize /* reading from the end of the old hoplist */,
+			ENTRY_NEXT(knownEntry) - (
+				(uintptr_t)(
+					ENTRY_HOPLIST(knownEntry) +
+					hopListSize
+				) /* pos of end of original hoplist */
+			) /* of size [start of next entry - end of hoplist of current entry]
+			   * (aka all data inside this entry that exists after the end of the original hoplist) */
+		);
+
+		/* step 2. move all data of other entries backwards to line up again */
+		memmove(*ENTRY_NEXT(knownEntry) /* uses the still-bodged length */ - sizeDiff,
+				*ENTRY_NEXT(knownEntry) /* still the bodged length, points to the real current start of the next entry*/,
+				nl->len - (ENTRY_NEXT(knownEntry) - nl->entries) - sizeof(nodeList_t) /* length of remaining entries, after the end of our current one */
+		);
+
+		/* step 3. decrease size of modified entry by appropriate amount
+		 * that being: ((origDist - newDist) * sizeof(uuid)) bytes
+		 */
+		*ENTRY_SIZE(knownEntry) -= sizeDiff;
+
+		/* step 3a. write the new distance now that we've used it */
+		*ENTRY_DISTANCE_FROM_SENDER(knownEntry) = shortestPath;
+
+		/* step 4. decrease total nodelist size, cleanse pointers, and realloc */
+		nl->len -= hopListSize;
+		NODE_NodeList = realloc(NODE_NodeList, nl->len);
+
+		/* save offset of knownEntry (reuse lastEntryOffset for this, no use with a new var) */
+		lastEntryOffset = (uintptr_t)knownEntry - (uintptr_t)nl->entries;
+
+		/* cleanse our pointers */
+		nl = NODE_NodeList;
+		knownEntry = (uint8_t *)((uintptr_t)nl->entries + lastEntryOffset); /* re-apply offset to new list */
+
+		/* phew!  That was a mess, but everything should now be lined up with shorter path */
+		printf("Found a shorter path to node %s!\n", ENTRY_NODE_NAME(knownEntry));
 		return;
 	}
 
