@@ -164,7 +164,7 @@ int PLAT_NetCheckBcastData(evrnet_bcast_msg_t *msg) {
 		ret = recvfrom(bcastSock, msg, CONFIG_NET_MAX_PKT_KB * 1024,
 			0, NULL, NULL);
 
-		if (errno == EAGAIN || errno == EWOULDBLOCK)
+		if (ret <= 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
 			continue; /* no data from that interface */
 
 		else if (ret <= 0) {
