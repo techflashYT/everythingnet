@@ -21,22 +21,71 @@ extern void NET_Init(void);
  */
 extern void NET_HandleBcast(void);
 
-#ifdef EVRNET_CPU_IS_BE
-/* if on BE we must provide our own __swap32 for __swap64 to use,
- * since we can't just rely on ntohl like we can on LE (it'd no-op)
+#ifdef EVRNET_CPU_IS_LE
+/* we need to have a function to swap bytes, however,
+ * we must beware that some platforms already provide this capability.
  */
-static inline uint32_t __swap32(uint32_t in) {
+#  ifndef __swap32
+#    define EVRNET_NEED_SWAP32
+#  endif
+
+/* Some platforms have a __swap32, but we can't use it for
+ * whatever reason.
+ */
+#  ifdef CONFIG_PLAT_NEEDS_INTERNAL_SWAP32
+#    ifdef __swap32
+#      undef __swap32
+#    endif
+#    define EVRNET_NEED_SWAP32
+/* preparation to support swapping on either endianness just in case */
+#  elif defined(EVRNET_CPU_IS_BE)
+#    ifndef EVRNET_NEED_SWAP32
+/* we cant cheat with ntohl on BE */
+#      define EVRNET_NEED_SWAP32
+#    endif
+#  elif defined(EVRNER_CPU_IS_LE)
+/* we can cheat with ntohl on LE */
+#    ifdef EVRNET_NEED_SWAP32
+#      undef EVRNET_NEED_SWAP32
+#    endif
+#    ifdef __swap32
+#      undef __swap32
+#    endif
+#    define __swap32 ntohl
+#  endif
+
+#  ifdef EVRNET_NEED_SWAP32
+static inline uint32_t __evrnet_swap32(uint32_t in) {
 	return (uint32_t)((in << 24) | ((in << 8) & 0x00FF0000) |
 			((in >> 8) & 0x0000FF00) | (in >> 24));
 }
-#else
-/* we're on LE, so ntohl will happily byteswap a 32-bit value for
- * us, and probably faster (likely w/ inline asm)
- */
-#define __swap32 ntohl
-#endif
+#    define __swap32 __evrnet_swap32
+/* clean up after ourselves */
+#    undef EVRNET_NEED_SWAP32
+#  endif
 
-static inline uint64_t __swap64(uint64_t in) {
+/* we need to have a function to swap bytes, however,
+ * we must beware that some platforms already provide this capability.
+ */
+#  ifndef __swap64
+#    define EVRNET_NEED_SWAP64
+#  endif
+
+/* Some platforms have a __swap64, but we can't use it for
+ * whatever reason.
+ */
+#  ifdef CONFIG_PLAT_NEEDS_INTERNAL_SWAP64
+#    ifdef __swap64
+#      undef __swap64
+#    endif
+#    ifndef EVRNET_NEED_SWAP64
+#      define EVRNET_NEED_SWAP64
+#    endif
+#  endif
+
+
+#  ifdef EVRNET_NEED_SWAP64
+static inline uint64_t __evrnet_swap64(uint64_t in) {
 	uint32_t hi, lo;
 
 	/* separate into 2x 32-bit values and swap them */
@@ -49,13 +98,56 @@ static inline uint64_t __swap64(uint64_t in) {
 	in |= __swap32(hi);
 	return in;
 }
+#    define __swap64 __evrnet_swap64
+#  endif
 
-#ifdef EVRNET_CPU_IS_BE
-#define ntohq(x) x
-#define htonq(x) x
+#  ifndef ntohq
+#    define EVRNET_NEED_NTOHQ
+#  endif
+
+#  ifndef htonq
+#    define EVRNET_NEED_HTONQ
+#  endif
+
+/* Some platforms have an ntohq, but we can't use it for
+ * whatever reason.
+ */
+#  ifdef CONFIG_PLAT_NEEDS_INTERNAL_NTOHQ
+#    ifdef ntohq
+#      undef ntohq
+#    endif
+#    ifndef EVRNET_NEED_NTOHQ
+#      define EVRNET_NEED_NTOHQ
+#    endif
+#  endif
+
+/* Some platforms have an htonq, but we can't use it for
+ * whatever reason.
+ */
+#  ifdef CONFIG_PLAT_NEEDS_INTERNAL_HTONQ
+#    ifdef htonq
+#      undef htonq
+#    endif
+#    ifndef EVRNET_NEED_HTONQ
+#      define EVRNET_NEED_HTONQ
+#    endif
+#  endif
+
+
+#  ifdef EVRNET_NEED_NTOHQ
+#    define ntohq(x) __swap64(x)
+#  endif
+#  ifdef EVRNET_NEED_HTONQ
+#    define htonq(x) __swap64(x)
+#  endif
+
 #else
-#define ntohq(x) __swap64(x)
-#define htonq(x) __swap64(x)
+#  ifdef EVRNET_NEED_NTOHQ
+#    define ntohq(x) x
+#  endif
+#  ifdef EVRNET_NEED_HTONQ
+#    define htonq(x) x
+#  endif
 #endif
 
 #endif
