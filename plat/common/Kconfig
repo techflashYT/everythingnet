@@ -19,6 +19,10 @@ config PLAT_NEEDS_FLUSH_OUTPUT
 	bool
 	default n
 
+config PLAT_CAN_HAVE_MULTIPLE_INTERFACES
+	bool
+	default n
+
 config GFX_NEEDS_LIBGL
 	bool
 	default n
@@ -57,7 +61,10 @@ config GFX_FB
 
 config NET_MAX_INT
 	int "Maximum allowed network interfaces"
-	default 8
+	default 8 if PLAT_CAN_HAVE_MULTIPLE_INTERFACES
+	default 1 if !PLAT_CAN_HAVE_MULTIPLE_INTERFACES
+	range 1 32767 if PLAT_CAN_HAVE_MULTIPLE_INTERFACES
+	range 1 1 if !PLAT_CAN_HAVE_MULTIPLE_INTERFACES
 
 config NET_MAX_PKT_KB
 	int "Maximum packet size in kilobytes"
