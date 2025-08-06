@@ -28,11 +28,14 @@
 2. Add it in `plat/Makefile`.
 3. Add any necessary device-specific configuration parameters under `plat/foo/Kconfig`
 4. Define `PLAT_Init()` and `PLAT_Info`.  These are by convention in `init.c` and `info.c` respectively, though if you have a good reason to, they can be in any file.  Note that `PLAT_Init()` is expected to perform all initialization tasks - see the `PLAT_Init` and `PLAT_Info` sections of the documentation (under the `Documentation` directory) for more information on the roles of each.
-5. For baremetal platforms that lack a proper libc, you'll probably want to define some of the internal-libc stubs for your platform, so you can get output, allocate memory, etc.
-6. Add any C source files you created under `plat/foo` to `plat/foo/Makefile`.
-7. If necessary for your platform, define any necessary CFLAGS, LDFLAGS, LDLIBS, post-link steps, etc, under `Makefile.flags`.  If your platform is one specific (type of) device, and can only use one specific toolchain (e.g. Wii/GameCube with devkitPPC, Switch with devkitA64), you may force said toolchain in `Makefile.flags` as well.
-8. EverythingNet should now compile and build, at least in a no-functionality mode.  That should be all of the necessary platform glue to get a binary that starts.
-9. [TBD - Graphics?  Audio?  Networking?  etc]
+5. Define the exit callbacks (preferably in `PLAT_Init`)
+6. Define other platform-sepcific callbacks (e.g. `PLAT_FlushOutput`) if necessary
+7. For baremetal platforms that lack a proper libc, you'll probably want to define some of the internal-libc stubs for your platform, so you can get output, allocate memory, etc.
+8. Add any C source files you created under `plat/foo` to `plat/foo/Makefile`.
+9. If necessary for your platform, define any necessary CFLAGS, LDFLAGS, LDLIBS, post-link steps, etc, under `Makefile.flags`.  If your platform is one specific (type of) device, and can only use one specific toolchain (e.g. Wii/GameCube with devkitPPC, Switch with devkitA64), you may force said toolchain in `Makefile.flags` as well.
+11. Define `PLAT_NetDoBroadcast` and `PLAT_NetCheckBcastData`.  These can be stubs for an initial port.  It's convention to also have a `FOO_NetInit` that you call under `PLAT_Init`, though this may or may not be necessary for your platform.
+12. EverythingNet should now compile and build, at least in a no-functionality mode.  That should be all of the necessary platform glue to get a binary that starts.
+13. [TBD - Graphics?  Audio? etc]
 
 ### Optional Platform Hooks
 
