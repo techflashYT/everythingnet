@@ -35,8 +35,13 @@ void NET_HandleBcast(void) {
 	while (1) {
 		/* Check for anything from other nodes */
 		ret = PLAT_NetCheckBcastData(msg);
-		if (ret != 1)
-			break;
+		if (ret != 1) {
+#ifdef CONFIG_PLAT_SUPPORTS_MULTICAST
+			ret = PLAT_NetCheckMcastData(msg);
+			if (ret != 1)
+#endif
+				break;
+		}
 
 		/* Swap the data back to native endianess */
 		msg->magic = ntohl(msg->magic);

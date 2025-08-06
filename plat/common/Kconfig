@@ -23,6 +23,10 @@ config PLAT_CAN_HAVE_MULTIPLE_INTERFACES
 	bool
 	default n
 
+config PLAT_SUPPORTS_MULTICAST
+	bool
+	default n
+
 config GFX_NEEDS_LIBGL
 	bool
 	default n

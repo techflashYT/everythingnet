@@ -38,6 +38,7 @@ choice
 		select PLAT_SUPPORTS_ABS_INPUT
 		select PLAT_POSIX_LIKE
 		select PLAT_CAN_HAVE_MULTIPLE_INTERFACES
+		select PLAT_SUPPORTS_MULTICAST
 		help
 		  Build for targetting a GNU/Linux system.  Can be cross
 		  compiled like normal, or natively compiled if your host
@@ -52,6 +53,7 @@ choice
 		select PLAT_SUPPORTS_INPUT
 		select PLAT_SUPPORTS_REL_INPUT
 		select PLAT_SUPPORTS_ABS_INPUT
+		select PLAT_SUPPORTS_MULTICAST
 		select PLAT_CAN_HAVE_MULTIPLE_INTERFACES
 		help
 		  Build for Microsoft Windows, using MINGW.  Building
