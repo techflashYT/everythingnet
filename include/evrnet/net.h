@@ -12,6 +12,8 @@
 #include <evrnet/plat.h>
 
 #define EVRNET_BCAST_PORT 6000
+#define EVRNET_MCAST_PORT 6000
+#define EVRNET_MCAST_ADDR "239.0.0.1"
 #define EVRNET_BCAST_MAGIC 0x92DCC748
 
 /* Initialize the networking subsystem */

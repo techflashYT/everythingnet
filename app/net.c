@@ -82,6 +82,9 @@ void NET_HandleBcast(void) {
 
 	/* our packet is ready, and the node list is back in order.  let's do this thing. */
 	PLAT_NetDoBroadcast(msg);
+#ifdef CONFIG_PLAT_SUPPORTS_MULTICAST
+	PLAT_NetDoMulticast(msg);
+#endif
 
 out:
 	counter++;

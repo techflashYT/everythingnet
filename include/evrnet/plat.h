@@ -154,7 +154,7 @@ extern void PLAT_FlushOutput();
 
 
 /*
- * Check for new broadcast data
+ * Check for new broadcast / multicast data
  *
  * Returns:
  * < 0: Error
@@ -162,15 +162,17 @@ extern void PLAT_FlushOutput();
  * 1: New message available, filled in msg
  */
 extern int PLAT_NetCheckBcastData(evrnet_bcast_msg_t *msg);
+extern int PLAT_NetCheckMcastData(evrnet_bcast_msg_t *msg);
 
 
 /*
- * Do a broadcast to all known interfaces
+ * Do a broadcast / multicast to all known interfaces
  *
  * Returns:
  * < 0: Error
  * 0: Success
  */
 extern int PLAT_NetDoBroadcast(evrnet_bcast_msg_t *msg);
+extern int PLAT_NetDoMulticast(evrnet_bcast_msg_t *msg);
 
 #endif
