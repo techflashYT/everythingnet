@@ -14,6 +14,7 @@
 #include <evrnet/plat.h>
 #include <evrnet/node.h>
 #include <evrnet/state.h>
+#include <evrnet/endian.h>
 
 static evrnet_bcast_msg_t *msg;
 static uint32_t counter = 0;
