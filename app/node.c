@@ -19,6 +19,7 @@
 #include <evrnet/cap.h>
 #include <evrnet/netType.h>
 #include <evrnet/plat.h>
+#include <evrnet/endian.h>
 nodeList_t *NODE_NodeList;
 char NODE_LocalName[64];
 uint64_t NODE_LocalUUID[2];
