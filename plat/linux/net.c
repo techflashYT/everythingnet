@@ -39,9 +39,9 @@ static void addIface(const char *ipStr, int num, uint32_t bcastMask) {
 	printf("adding iface %d with ip %s/%d\n", num, ipStr, i);
 
 	/* set up the address */
-	bcastAddr[i].sin_family = AF_INET;
+	bcastAddr[num].sin_family = AF_INET;
 	inet_pton(AF_INET, ipStr, &bcastAddr[i].sin_addr);
-	bcastAddr[i].sin_port = htons(EVRNET_BCAST_PORT);
+	bcastAddr[num].sin_port = htons(EVRNET_BCAST_PORT);
 }
 
 int LINUX_NetInit(void) {
