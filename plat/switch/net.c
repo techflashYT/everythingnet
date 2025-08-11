@@ -35,7 +35,8 @@ static uint32_t addrlen;
 
 
 int SWITCH_NetInit(void) {
-	int ret, family, flags, option = 1;
+	int ret, family, flags, i, option = 1;
+	char netMaskStr[4], *host;
 	uint32_t address, bcastMask;
 
 	/* clean up all state, just in case; networking can be fiddly */
@@ -96,9 +97,19 @@ int SWITCH_NetInit(void) {
 	puts("SWITCH: Unable to determine netmask on this platform: guessing /24");
 	PLAT_FlushOutput();
 	/* Switch runs in little endian, so need to set the MSBs in order to set the least significant address bits */
-	bcastAddr.sin_addr.s_addr = gethostid() | 0xff000000;
+	bcastMask = 0xff000000;
+
+	bcastAddr.sin_addr.s_addr = gethostid() | bcastMask;
 	bcastAddr.sin_port = htons(EVRNET_BCAST_PORT);
 
+	host = inet_ntoa(bcastAddr.sin_addr);
+
+	for (i = 0; ; i++) {
+	if (bcastMask & (1 << i) || i >= 32)
+		break;
+	}
+	printf("using broadcast ip %s/%d\n", host, i);
+	PLAT_FlushOutput();
 
 	NET_Init();
 	return 0;

@@ -29,9 +29,14 @@ static uint32_t addrlen;
 static int knownIfaces;
 
 
-static void addIface(const char *ipStr, int i) {
-	int ret;
-	printf("adding iface %d with ip %s\n", i, ipStr);
+static void addIface(const char *ipStr, int num, uint32_t bcastMask) {
+	int i;
+	char netMaskStr[4];
+	for (i = 0; ; i++) {
+		if (bcastMask & (1 << i) || i >= 32)
+			break;
+	}
+	printf("adding iface %d with ip %s/%d\n", num, ipStr, i);
 
 	/* set up the address */
 	bcastAddr[i].sin_family = AF_INET;
@@ -131,7 +136,6 @@ int LINUX_NetInit(void) {
 		 */
 		bcastMask = ((struct sockaddr_in *)ifaces->ifa_netmask)->sin_addr.s_addr;
 		bcastMask = ~bcastMask;
-		printf("bcastMask = 0x%08X\n", bcastMask);
 		((struct sockaddr_in *)ifaces->ifa_addr)->sin_addr.s_addr |= bcastMask;
 
 		/* get IP */
@@ -145,7 +149,7 @@ int LINUX_NetInit(void) {
 		}
 
 		/* got a good interface, add it */
-		addIface(host, knownIfaces);
+		addIface(host, knownIfaces, bcastMask);
 		knownIfaces++;
 out:
 		ifaces = ifaces->ifa_next;
