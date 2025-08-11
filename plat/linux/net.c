@@ -183,6 +183,11 @@ out:
 		APP_CleanupAndExit(1);
 	}
 
+	/* set it into nonblocking mode */
+	flags = fcntl(mcastSock, F_GETFL, 0);
+	fcntl(mcastSock, F_SETFL, flags | O_NONBLOCK);
+
+
 	/* set up pollfd */
 	mcastSocketPollFd.fd = mcastSock;
 	mcastSocketPollFd.events = POLLIN;
