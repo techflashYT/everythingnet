@@ -23,10 +23,33 @@
 nodeList_t *NODE_NodeList;
 char NODE_LocalName[64];
 uint64_t NODE_LocalUUID[2];
+nodeDiscoverySrc_t NODE_DiscoverySource;
+uint8_t *NODE_DiscoverySourceNode;
+
+static char *discoverySrcToStr(nodeDiscoverySrc_t src) {
+	switch (src) {
+		case NODE_DISCOVERY_SOURCE_BROADCAST:
+			return "Broadcast";
+		case NODE_DISCOVERY_SOURCE_MULTICAST:
+			return "Multicast";
+		case NODE_DISCOVERY_SOURCE_OTHER_NODE:
+			return "Other Node";
+		default:
+			return "Unknown";
+	}
+	return "Unknown";
+}
 
 static void NODE_DumpEntry(uint8_t *e) {
 	int i;
 	char capTemp[256], ip[INET_ADDRSTRLEN];
+	puts("==== Node dump ====");
+	printf("Node discovery source: %s", discoverySrcToStr(NODE_DiscoverySource));
+	if (NODE_DiscoverySource == NODE_DISCOVERY_SOURCE_OTHER_NODE && NODE_DiscoverySourceNode) {
+		printf(" [discovered by node: %s]", ENTRY_NODE_NAME(NODE_DiscoverySourceNode));
+	}
+	puts("");
+
 
 	printf("size value: %u\n", *ENTRY_SIZE(e));
 	printf("num IPs: %u\n", *ENTRY_NUM_IP(e));
@@ -281,7 +304,12 @@ static void NODE_MaybeAddEntry(uint8_t *e) {
 	/* copy our new entry over */
 	memcpy(knownEntry, e, *ENTRY_SIZE(e));
 
-	printf("Found new node: %s!\n", ENTRY_NODE_NAME(e));
+	printf("Found new node: %s", ENTRY_NODE_NAME(e));
+	printf(" [discovery source: %s", discoverySrcToStr(NODE_DiscoverySource));
+	if (NODE_DiscoverySource == NODE_DISCOVERY_SOURCE_OTHER_NODE && NODE_DiscoverySourceNode) {
+		printf(", discovered by node: %s", ENTRY_NODE_NAME(NODE_DiscoverySourceNode));
+	}
+	puts("]");
 }
 
 void NODE_CheckForNewNodes(evrnet_bcast_msg_t *msg) {
@@ -293,5 +321,7 @@ void NODE_CheckForNewNodes(evrnet_bcast_msg_t *msg) {
 	while (((uintptr_t)e - (uintptr_t)nl->entries) < (nl->len - sizeof(nodeList_t))) {
 		NODE_MaybeAddEntry(e);
 		e = ENTRY_NEXT(e);
+		NODE_DiscoverySource = NODE_DISCOVERY_SOURCE_OTHER_NODE;
+		NODE_DiscoverySourceNode = nl->entries;
 	}
 }

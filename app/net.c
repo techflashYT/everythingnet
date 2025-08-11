@@ -35,9 +35,12 @@ void NET_HandleBcast(void) {
 
 	while (1) {
 		/* Check for anything from other nodes */
+		NODE_DiscoverySource = NODE_DISCOVERY_SOURCE_BROADCAST;
+		NODE_DiscoverySourceNode = NULL;
 		ret = PLAT_NetCheckBcastData(msg);
 		if (ret != 1) {
 #ifdef CONFIG_PLAT_SUPPORTS_MULTICAST
+			NODE_DiscoverySource = NODE_DISCOVERY_SOURCE_MULTICAST;
 			ret = PLAT_NetCheckMcastData(msg);
 			if (ret != 1)
 #endif

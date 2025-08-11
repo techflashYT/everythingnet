@@ -22,6 +22,12 @@ extern char NODE_LocalName[64];
 /* Node list */
 extern nodeList_t *NODE_NodeList;
 
+/* Node discovery source type */
+extern nodeDiscoverySrc_t NODE_DiscoverySource;
+
+/* Node discovery source, pointer to node that told us about this one */
+extern uint8_t *NODE_DiscoverySourceNode;
+
 /* Initialize the node subsystem */
 extern void NODE_Init(void);
 

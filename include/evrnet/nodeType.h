@@ -45,4 +45,10 @@ typedef struct {
 	uint8_t entries[];
 } __attribute__((packed)) nodeList_t;
 
+typedef enum {
+	NODE_DISCOVERY_SOURCE_BROADCAST = 1,
+	NODE_DISCOVERY_SOURCE_MULTICAST,
+	NODE_DISCOVERY_SOURCE_OTHER_NODE,
+} nodeDiscoverySrc_t;
+
 #endif
