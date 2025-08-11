@@ -40,7 +40,7 @@ static void addIface(const char *ipStr, int num, uint32_t bcastMask) {
 
 	/* set up the address */
 	bcastAddr[num].sin_family = AF_INET;
-	inet_pton(AF_INET, ipStr, &bcastAddr[i].sin_addr);
+	inet_pton(AF_INET, ipStr, &bcastAddr[num].sin_addr);
 	bcastAddr[num].sin_port = htons(EVRNET_BCAST_PORT);
 }
 
