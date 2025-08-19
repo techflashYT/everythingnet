@@ -41,7 +41,11 @@ static char *discoverySrcToStr(nodeDiscoverySrc_t src) {
 
 static void NODE_DumpEntry(uint8_t *e) {
 	int i;
-	char capTemp[256], ip[INET_ADDRSTRLEN];
+	char capTemp[256];
+#if 0
+	char ip[INET_ADDRSTRLEN];
+#endif
+
 	puts("==== Node dump ====");
 	printf("Node discovery source: %s", discoverySrcToStr(NODE_DiscoverySource));
 	if (NODE_DiscoverySource == NODE_DISCOVERY_SOURCE_OTHER_NODE && NODE_DiscoverySourceNode) {

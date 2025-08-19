@@ -6,7 +6,6 @@
 #ifndef _NET_H
 #define _NET_H
 
-#include <netinet/in.h>
 #include <stdint.h>
 #include <evrnet/nodeType.h>
 #include <evrnet/plat.h>
