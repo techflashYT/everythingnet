@@ -7,7 +7,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include <arpa/inet.h>
 
 #include <evrnet/net.h>
 #include <evrnet/plat.h>

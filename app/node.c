@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <netinet/in.h>
 
 #include <evrnet/nodeType.h>
 #include <evrnet/node.h>
