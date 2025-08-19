@@ -7,8 +7,9 @@
 #define _NODETYPE_H
 
 #include <stdint.h>
+#include <evrnet/compat.h>
 
-typedef struct {
+EVRNET_PACK(typedef struct {
 	/* Entire node list size in bytes */
 	uint32_t len;
 
@@ -43,7 +44,7 @@ typedef struct {
 	 * 12. [end of entry, next entry follows immediately after]
 	 */
 	uint8_t entries[];
-} __attribute__((packed)) nodeList_t;
+}, nodeList_t)
 
 typedef enum {
 	NODE_DISCOVERY_SOURCE_BROADCAST = 1,
