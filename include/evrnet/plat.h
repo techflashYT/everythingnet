@@ -94,6 +94,13 @@ extern int PLAT_Init(int argc, char *argv[]);
 #      define EVRNET_CPU_IS_64BIT
 #    endif
 #  endif
+#elif defined(_MSC_VER)
+#  if defined(_WIN64)
+#    define EVRNET_CPU_IS_64BIT
+#  else
+/* FIXME: Should probably try to filter out trying to build w/ Win16... */
+#    define EVRNET_CPU_IS_32BIT
+#  endif
 #endif
 
 #if !defined(EVRNET_CPU_IS_32BIT) && !defined(EVRNET_CPU_IS_64BIT)
