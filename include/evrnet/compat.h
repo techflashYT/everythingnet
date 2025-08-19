@@ -5,6 +5,7 @@
 
 #ifndef _COMPAT_H
 #define _COMPAT_H
+#include <evrnet/plat_detect.h>
 
 /* MSVC */
 #ifdef _MSC_VER
@@ -32,5 +33,18 @@
 #  define inline /* nothing */
 #endif
 
+/* important integer types that C89 doesn't necessarily provide
+ * old MSVC doesn't have these by default
+ */
+#if defined(_MSC_VER) && _MSC_VER < 1300
+#  ifdef EVRNET_CPU_IS_32BIT
+	typedef unsigned long  uintptr_t;
+	typedef long           intptr_t;
+#  elif defined(EVRNET_CPU_IS_64BIT)
+	typedef unsigned long long uintptr_t;
+	typedef long long          intptr_t;
+#  endif
+/* if you have any other compiler (e.g. a competent GCC/Clang), your stdint.h probably has these already. */
+#endif
 
 #endif

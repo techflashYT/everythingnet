@@ -17,6 +17,7 @@
 #include <evrnet/netType.h>
 #include <evrnet/plat.h>
 #include <evrnet/endian.h>
+#include <evrnet/compat.h>
 
 nodeList_t *NODE_NodeList;
 char NODE_LocalName[64];

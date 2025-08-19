@@ -10,6 +10,7 @@
 #include <evrnet/plat.h>
 #include <evrnet/net.h>
 #include <evrnet/nodeType.h>
+#include <evrnet/compat.h>
 
 #define EVRNET_NODELIST_V1 0x00000001
 
