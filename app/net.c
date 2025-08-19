@@ -47,10 +47,10 @@ void NET_HandleBcast(void) {
 		}
 
 		/* Swap the data back to native endianess */
-		msg->magic = ntohl(msg->magic);
-		msg->crc = ntohl(msg->crc);
-		msg->uuid[0] = ntohq(msg->uuid[0]);
-		msg->uuid[1] = ntohq(msg->uuid[1]);
+		msg->magic = E_BEToHost_32(msg->magic);
+		msg->crc = E_BEToHost_32(msg->crc);
+		msg->uuid[0] = E_BEToHost_64(msg->uuid[0]);
+		msg->uuid[1] = E_BEToHost_64(msg->uuid[1]);
 
 		if (msg->uuid[0] == NODE_LocalUUID[0] &&
 			msg->uuid[1] == NODE_LocalUUID[1])
@@ -65,9 +65,9 @@ void NET_HandleBcast(void) {
 	if (counter % 15 != 0)
 		goto out;
 
-	msg->magic = htonl(EVRNET_BCAST_MAGIC);
-	msg->uuid[0] = htonq(NODE_LocalUUID[0]);
-	msg->uuid[1] = htonq(NODE_LocalUUID[1]);
+	msg->magic = E_HostToBE_32(EVRNET_BCAST_MAGIC);
+	msg->uuid[0] = E_HostToBE_64(NODE_LocalUUID[0]);
+	msg->uuid[1] = E_HostToBE_64(NODE_LocalUUID[1]);
 	msg->crc = 0;
 	/* TODO: Calculate CRC */
 
@@ -75,7 +75,7 @@ void NET_HandleBcast(void) {
 	NODE_ListToBE(NODE_NodeList);
 
 	/* copy the now BE-ified node list to our data portion */
-	memcpy(&msg->nodeList, NODE_NodeList, ntohl(NODE_NodeList->len));
+	memcpy(&msg->nodeList, NODE_NodeList, E_BEToHost_32(NODE_NodeList->len));
 
 	/* convert the list back to native endianness so we can use it elsewhere
 	 * (this will again no-op on BE-native platforms, since we never swapped

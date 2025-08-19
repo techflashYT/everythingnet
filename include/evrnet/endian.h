@@ -6,35 +6,38 @@
 #ifndef _EVRNET_ENDIAN_H
 #define _EVRNET_ENDIAN_H
 
-/* we need to have a function to swap bytes, however,
- * we must beware that some platforms already provide this capability.
- */
+/* figure out how to swap 16-bit vals */
+#ifndef __swap16
+#  define EVRNET_NEED_SWAP16
+#endif
+
+#ifdef CONFIG_PLAT_NEEDS_INTERNAL_SWAP16
+#  ifdef __swap16
+#    undef __swap16
+#  endif
+#  define EVRNET_NEED_SWAP16
+#endif
+
+#ifdef EVRNET_NEED_SWAP16
+static inline uint16_t __evrnet_swap16(uint16_t in) {
+	return (uint16_t)((in << 8) | (in >> 8));
+}
+#  define __swap16 __evrnet_swap16
+/* clean up after ourselves */
+#  undef EVRNET_NEED_SWAP16
+#endif
+
+
+/* figure out how to swap 32-bit vals */
 #ifndef __swap32
 #  define EVRNET_NEED_SWAP32
 #endif
 
-/* Some platforms have a __swap32, but we can't use it for
- * whatever reason.
- */
 #ifdef CONFIG_PLAT_NEEDS_INTERNAL_SWAP32
 #  ifdef __swap32
 #    undef __swap32
 #  endif
 #  define EVRNET_NEED_SWAP32
-#elif defined(EVRNET_CPU_IS_BE)
-#  ifndef EVRNET_NEED_SWAP32
-/* we cant cheat with ntohl on BE (it's a no-op) */
-#    define EVRNET_NEED_SWAP32
-#  endif
-#elif defined(EVRNET_CPU_IS_LE)
-/* we can cheat with ntohl on LE */
-#  ifdef EVRNET_NEED_SWAP32
-#    undef EVRNET_NEED_SWAP32
-#  endif
-#  ifdef __swap32
-#    undef __swap32
-#  endif
-#  define __swap32 ntohl
 #endif
 
 #ifdef EVRNET_NEED_SWAP32
@@ -47,16 +50,11 @@ static inline uint32_t __evrnet_swap32(uint32_t in) {
 #  undef EVRNET_NEED_SWAP32
 #endif
 
-/* we need to have a function to swap bytes, however,
- * we must beware that some platforms already provide this capability.
- */
+/* figure out how to swap 64-bit vals */
 #ifndef __swap64
 #  define EVRNET_NEED_SWAP64
 #endif
 
-/* Some platforms have a __swap64, but we can't use it for
- * whatever reason.
- */
 #ifdef CONFIG_PLAT_NEEDS_INTERNAL_SWAP64
 #  ifdef __swap64
 #    undef __swap64
@@ -84,52 +82,20 @@ static inline uint64_t __evrnet_swap64(uint64_t in) {
 #  define __swap64 __evrnet_swap64
 #endif
 
-#ifndef ntohq
-#  define EVRNET_NEED_NTOHQ
-#endif
-
-#ifndef htonq
-#  define EVRNET_NEED_HTONQ
-#endif
-
-/* Some platforms have an ntohq, but we can't use it for
- * whatever reason.
- */
-#ifdef CONFIG_PLAT_NEEDS_INTERNAL_NTOHQ
-#  ifdef ntohq
-#    undef ntohq
-#  endif
-#  ifndef EVRNET_NEED_NTOHQ
-#    define EVRNET_NEED_NTOHQ
-#  endif
-#endif
-
-/* Some platforms have an htonq, but we can't use it for
- * whatever reason.
- */
-#ifdef CONFIG_PLAT_NEEDS_INTERNAL_HTONQ
-#  ifdef htonq
-#    undef htonq
-#  endif
-#  ifndef EVRNET_NEED_HTONQ
-#    define EVRNET_NEED_HTONQ
-#  endif
-#endif
-
 #ifdef EVRNET_CPU_IS_LE
-#  ifdef EVRNET_NEED_NTOHQ
-#    define ntohq(x) __swap64(x)
-#  endif
-#  ifdef EVRNET_NEED_HTONQ
-#    define htonq(x) __swap64(x)
-#  endif
+#  define E_BEToHost_64(x) __swap64(x)
+#  define E_HostToBE_64(x) __swap64(x)
+#  define E_BEToHost_32(x) __swap32(x)
+#  define E_HostToBE_32(x) __swap32(x)
+#  define E_BEToHost_16(x) __swap16(x)
+#  define E_HostToBE_16(x) __swap16(x)
 #else
-#  ifdef EVRNET_NEED_NTOHQ
-#    define ntohq(x) x
-#  endif
-#  ifdef EVRNET_NEED_HTONQ
-#    define htonq(x) x
-#  endif
+#  define E_BEToHost_64(x) (x)
+#  define E_HostToBE_64(x) (x)
+#  define E_BEToHost_32(x) (x)
+#  define E_HostToBE_32(x) (x)
+#  define E_BEToHost_16(x) (x)
+#  define E_HostToBE_16(x) (x)
 #endif
 
 #endif

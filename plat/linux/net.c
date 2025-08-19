@@ -20,6 +20,7 @@
 #include <evrnet/net.h>
 #include <evrnet/netType.h>
 #include <evrnet/nodeType.h>
+#include <evrnet/endian.h>
 
 static int mcastSock, bcastSock;
 static struct pollfd bcastSocketPollFd, mcastSocketPollFd;
@@ -41,7 +42,7 @@ static void addIface(const char *ipStr, int num, uint32_t bcastMask) {
 	/* set up the address */
 	bcastAddr[num].sin_family = AF_INET;
 	inet_pton(AF_INET, ipStr, &bcastAddr[num].sin_addr);
-	bcastAddr[num].sin_port = htons(EVRNET_BCAST_PORT);
+	bcastAddr[num].sin_port = E_HostToBE_16(EVRNET_BCAST_PORT);
 }
 
 int LINUX_NetInit(void) {
@@ -83,8 +84,8 @@ int LINUX_NetInit(void) {
 
 	/* bind the socket to any address */
 	anyAddr.sin_family = AF_INET;
-	anyAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	anyAddr.sin_port = htons(EVRNET_BCAST_PORT);
+	anyAddr.sin_addr.s_addr = E_HostToBE_32(INADDR_ANY);
+	anyAddr.sin_port = E_HostToBE_16(EVRNET_BCAST_PORT);
 
 	ret = bind(bcastSock, (struct sockaddr*)&anyAddr, addrlen);
 	if (ret < 0) {
@@ -174,7 +175,7 @@ out:
 	/* set up the address */
 	mcastAddr.sin_family = AF_INET;
 	mcastAddr.sin_addr.s_addr = inet_addr(EVRNET_MCAST_ADDR);
-	mcastAddr.sin_port = htons(EVRNET_MCAST_PORT);
+	mcastAddr.sin_port = E_HostToBE_16(EVRNET_MCAST_PORT);
 
 	/* disable loopback */
 	ret = setsockopt(mcastSock, IPPROTO_IP, IP_MULTICAST_LOOP, &option2, sizeof(option2));
@@ -226,16 +227,16 @@ int PLAT_NetCheckBcastData(evrnet_bcast_msg_t *msg) {
 		 * after we return, the platform glue must always return
 		 * the packet as-is.
 		 */
-		if (ntohl(msg->magic) != EVRNET_BCAST_MAGIC)
+		if (E_BEToHost_32(msg->magic) != EVRNET_BCAST_MAGIC)
 			continue; /* invalid magic */
 
-		if (ntohl(msg->nodeList.len) + (sizeof(evrnet_bcast_msg_t) - sizeof(nodeList_t)) != ret) {
+		if (E_BEToHost_32(msg->nodeList.len) + (sizeof(evrnet_bcast_msg_t) - sizeof(nodeList_t)) != ret) {
 			fprintf(stderr,
 				"Malformed (or malicious?) packet received, "
 				"reported length (%d) != received (%d).  "
 				"Malicious packet attempting to buffer-overflow, "
 				"or just corruption on flakey network?  Ignoring.\n",
-				(uint32_t)(ntohl(msg->nodeList.len) + (sizeof(evrnet_bcast_msg_t) - sizeof(nodeList_t))),
+				(uint32_t)(E_BEToHost_32(msg->nodeList.len) + (sizeof(evrnet_bcast_msg_t) - sizeof(nodeList_t))),
 				ret
 			);
 			continue; /* length mismatch */
@@ -271,16 +272,16 @@ mcast:
 	 * after we return, the platform glue must always return
 	 * the packet as-is.
 	 */
-	if (ntohl(msg->magic) != EVRNET_BCAST_MAGIC)
+	if (E_BEToHost_32(msg->magic) != EVRNET_BCAST_MAGIC)
 		return 0; /* invalid magic */
 
-	if (ntohl(msg->nodeList.len) + (sizeof(evrnet_bcast_msg_t) - sizeof(nodeList_t)) != ret) {
+	if (E_BEToHost_32(msg->nodeList.len) + (sizeof(evrnet_bcast_msg_t) - sizeof(nodeList_t)) != ret) {
 		fprintf(stderr,
 			"Malformed (or malicious?) packet received, "
 			"reported length (%d) != received (%d).  "
 			"Malicious packet attempting to buffer-overflow, "
 			"or just corruption on flakey network?  Ignoring.\n",
-			(uint32_t)(ntohl(msg->nodeList.len) + (sizeof(evrnet_bcast_msg_t) - sizeof(nodeList_t))),
+			(uint32_t)(E_BEToHost_32(msg->nodeList.len) + (sizeof(evrnet_bcast_msg_t) - sizeof(nodeList_t))),
 			ret
 		);
 		return 0; /* got data, but none were valid */
@@ -295,7 +296,7 @@ int PLAT_NetCheckMcastData(evrnet_bcast_msg_t *msg) {
 
 int PLAT_NetDoBroadcast(evrnet_bcast_msg_t *msg) {
 	int ret, i;
-	size_t size = ntohl(msg->nodeList.len) + (sizeof(evrnet_bcast_msg_t) - sizeof(nodeList_t));
+	size_t size = E_BEToHost_32(msg->nodeList.len) + (sizeof(evrnet_bcast_msg_t) - sizeof(nodeList_t));
 	for (i = 0; i < knownIfaces; i++) {
 		ret = sendto(bcastSock, msg, size, 0, (struct sockaddr*)&bcastAddr[i], addrlen);
 		if (ret < 0) {
@@ -309,7 +310,7 @@ int PLAT_NetDoBroadcast(evrnet_bcast_msg_t *msg) {
 
 int PLAT_NetDoMulticast(evrnet_bcast_msg_t *msg) {
 	int ret;
-	size_t size = ntohl(msg->nodeList.len) + (sizeof(evrnet_bcast_msg_t) - sizeof(nodeList_t));
+	size_t size = E_BEToHost_32(msg->nodeList.len) + (sizeof(evrnet_bcast_msg_t) - sizeof(nodeList_t));
 
 	ret = sendto(mcastSock, msg, size, 0, (struct sockaddr*)&mcastAddr, addrlen);
 	if (ret < 0) {

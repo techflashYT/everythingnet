@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <arpa/inet.h>
 #include <netinet/in.h>
 
 #include <evrnet/nodeType.h>
@@ -20,6 +19,7 @@
 #include <evrnet/netType.h>
 #include <evrnet/plat.h>
 #include <evrnet/endian.h>
+
 nodeList_t *NODE_NodeList;
 char NODE_LocalName[64];
 uint64_t NODE_LocalUUID[2];
@@ -56,10 +56,13 @@ static void NODE_DumpEntry(uint8_t *e) {
 	printf("distance from sender: %u (%s)\n", *ENTRY_DISTANCE_FROM_ME(e), *ENTRY_DISTANCE_FROM_ME(e) == 0 ? "Local" : "Remote");
 	printf("node name: %s\n", ENTRY_NODE_NAME(e));
 
+	/* doesn't work on NT4 due to missing arpa/inet.h .... */
+#if 0
 	for (i = 0; i < *ENTRY_NUM_IP(e); i++) {
 		inet_ntop(AF_INET, &ENTRY_NODE_IPS(e)[i], ip, INET_ADDRSTRLEN);
 		printf("IP address: %s\n", ip);
 	}
+#endif
 
 	#ifdef EVRNET_CPU_IS_64BIT
 	printf("UUID 0: 0x%16lX\n", ENTRY_NODE_UUID(e)[0]);
@@ -158,19 +161,19 @@ static void NODE_EntryToLE(uint8_t *e) {
 	int i;
 
 	/* convert the size */
-	*ENTRY_SIZE(e) = ntohs(*ENTRY_SIZE(e));
+	*ENTRY_SIZE(e) = E_BEToHost_16(*ENTRY_SIZE(e));
 
 	/* convert IPs */
 	for (i = 0; i < *ENTRY_NUM_IP(e); i++)
-		ENTRY_NODE_IPS(e)[i] = ntohl(ENTRY_NODE_IPS(e)[i]);
+		ENTRY_NODE_IPS(e)[i] = E_BEToHost_32(ENTRY_NODE_IPS(e)[i]);
 
 	/* convert UUIDs */
-	ENTRY_NODE_UUID(e)[0] = ntohq(ENTRY_NODE_UUID(e)[0]);
-	ENTRY_NODE_UUID(e)[1] = ntohq(ENTRY_NODE_UUID(e)[1]);
+	ENTRY_NODE_UUID(e)[0] = E_BEToHost_64(ENTRY_NODE_UUID(e)[0]);
+	ENTRY_NODE_UUID(e)[1] = E_BEToHost_64(ENTRY_NODE_UUID(e)[1]);
 
 	/* convert PLAT_Info */
-	*ENTRY_NODE_PLATINFO_CAP(e) = ntohl(*ENTRY_NODE_PLATINFO_CAP(e));
-	*ENTRY_NODE_PLATINFO_MEMSZ(e) = ntohl(*ENTRY_NODE_PLATINFO_MEMSZ(e));
+	*ENTRY_NODE_PLATINFO_CAP(e) = E_BEToHost_32(*ENTRY_NODE_PLATINFO_CAP(e));
+	*ENTRY_NODE_PLATINFO_MEMSZ(e) = E_BEToHost_32(*ENTRY_NODE_PLATINFO_MEMSZ(e));
 }
 
 static void NODE_EntryToBE(uint8_t *e) {
@@ -178,18 +181,18 @@ static void NODE_EntryToBE(uint8_t *e) {
 
 	/* convert IPs */
 	for (i = 0; i < *ENTRY_NUM_IP(e); i++)
-		ENTRY_NODE_IPS(e)[i] = htonl(ENTRY_NODE_IPS(e)[i]);
+		ENTRY_NODE_IPS(e)[i] = E_HostToBE_32(ENTRY_NODE_IPS(e)[i]);
 
 	/* convert UUIDs */
-	ENTRY_NODE_UUID(e)[0] = htonq(ENTRY_NODE_UUID(e)[0]);
-	ENTRY_NODE_UUID(e)[1] = htonq(ENTRY_NODE_UUID(e)[1]);
+	ENTRY_NODE_UUID(e)[0] = E_HostToBE_64(ENTRY_NODE_UUID(e)[0]);
+	ENTRY_NODE_UUID(e)[1] = E_HostToBE_64(ENTRY_NODE_UUID(e)[1]);
 
 	/* convert PLAT_Info */
-	*ENTRY_NODE_PLATINFO_CAP(e) = htonl(*ENTRY_NODE_PLATINFO_CAP(e));
-	*ENTRY_NODE_PLATINFO_MEMSZ(e) = htonl(*ENTRY_NODE_PLATINFO_MEMSZ(e));
+	*ENTRY_NODE_PLATINFO_CAP(e) = E_HostToBE_32(*ENTRY_NODE_PLATINFO_CAP(e));
+	*ENTRY_NODE_PLATINFO_MEMSZ(e) = E_HostToBE_32(*ENTRY_NODE_PLATINFO_MEMSZ(e));
 
 	/* convert the size */
-	*ENTRY_SIZE(e) = htons(*ENTRY_SIZE(e));
+	*ENTRY_SIZE(e) = E_HostToBE_16(*ENTRY_SIZE(e));
 }
 
 void NODE_ListToBE(nodeList_t *nl) {
@@ -218,16 +221,16 @@ void NODE_ListToBE(nodeList_t *nl) {
 
 	free(entryPtrs);
 
-	nl->version = htonl(nl->version);
-	nl->len = htonl(nl->len);
+	nl->version = E_HostToBE_32(nl->version);
+	nl->len = E_HostToBE_32(nl->len);
 }
 
 void NODE_ListToNative(nodeList_t *nl) {
 	uint8_t *e = nl->entries;
 	int i;
 
-	nl->version = ntohl(nl->version);
-	nl->len = ntohl(nl->len);
+	nl->version = E_BEToHost_32(nl->version);
+	nl->len = E_BEToHost_32(nl->len);
 
 	/* work forwards, converting every entry to native (LE).
 	 * Must happen this way since entries inherently

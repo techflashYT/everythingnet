@@ -74,8 +74,8 @@ int SWITCH_NetInit(void) {
 
 	/* bind the socket to any address */
 	anyAddr.sin_family = AF_INET;
-	anyAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	anyAddr.sin_port = htons(EVRNET_BCAST_PORT);
+	anyAddr.sin_addr.s_addr = E_BEToHost_32(INADDR_ANY);
+	anyAddr.sin_port = E_HostToBE_16(EVRNET_BCAST_PORT);
 
 	ret = bind(bcastSock, (struct sockaddr*)&anyAddr, addrlen);
 	if (ret < 0) {
@@ -100,7 +100,7 @@ int SWITCH_NetInit(void) {
 	bcastMask = 0xff000000;
 
 	bcastAddr.sin_addr.s_addr = gethostid() | bcastMask;
-	bcastAddr.sin_port = htons(EVRNET_BCAST_PORT);
+	bcastAddr.sin_port = E_HostToBE_16(EVRNET_BCAST_PORT);
 
 	host = inet_ntoa(bcastAddr.sin_addr);
 
@@ -144,16 +144,16 @@ int PLAT_NetCheckBcastData(evrnet_bcast_msg_t *msg) {
 	 * after we return, the platform glue must always return
 	 * the packet as-is.
 	 */
-	if (ntohl(msg->magic) != EVRNET_BCAST_MAGIC)
+	if (E_BEToHost_32(msg->magic) != EVRNET_BCAST_MAGIC)
 		return 0; /* invalid magic */
 
-	if (ntohl(msg->nodeList.len) + (sizeof(evrnet_bcast_msg_t) - sizeof(nodeList_t)) != ret) {
+	if (E_BEToHost_32(msg->nodeList.len) + (sizeof(evrnet_bcast_msg_t) - sizeof(nodeList_t)) != ret) {
 		fprintf(stderr,
 			"Malformed (or malicious?) packet received, "
 			"reported length (%d) != received (%d).  "
 			"Malicious packet attempting to buffer-overflow, "
 			"or just corruption on flakey network?  Ignoring.\n",
-			(uint32_t)(ntohl(msg->nodeList.len) + (sizeof(evrnet_bcast_msg_t) - sizeof(nodeList_t))),
+			(uint32_t)(E_BEToHost_32(msg->nodeList.len) + (sizeof(evrnet_bcast_msg_t) - sizeof(nodeList_t))),
 			ret
 		);
 		return 0; /* length mismatch */
@@ -164,7 +164,7 @@ int PLAT_NetCheckBcastData(evrnet_bcast_msg_t *msg) {
 
 int PLAT_NetDoBroadcast(evrnet_bcast_msg_t *msg) {
 	int ret, i;
-	ret = sendto(bcastSock, msg, ntohl(msg->nodeList.len) + (sizeof(evrnet_bcast_msg_t) - sizeof(nodeList_t)), 0,
+	ret = sendto(bcastSock, msg, E_BEToHost_32(msg->nodeList.len) + (sizeof(evrnet_bcast_msg_t) - sizeof(nodeList_t)), 0,
 		(struct sockaddr*)&bcastAddr, addrlen);
 	if (ret < 0) {
 		perror("sendto");
