@@ -13,7 +13,6 @@
 #include <evrnet/node.h>
 #include <evrnet/state.h>
 #include <evrnet/net.h>
-#include <sys/socket.h>
 #include <evrnet/cap.h>
 #include <evrnet/netType.h>
 #include <evrnet/plat.h>
