@@ -45,6 +45,7 @@ extern int PLAT_Init(int argc, char *argv[]);
 /* In order of accuracy:
  * - We have __BYTE_ORDER__ and __ORDER_LITTLER_ENDIAN__, and they are equal?
  * - __LITTLE_ENDIAN__ or __LITTLE_ENDIAN are defined?
+ * - Are we targetting Microsoft Windows?  (Even old NT RISC ports _always_ ran in LE)
  *
  * And the reverse of the above for BE:
  * - We have __BYTE_ORDER__ and __ORDER_BIG_ENDIAN__, and they are equal?
@@ -62,10 +63,19 @@ extern int PLAT_Init(int argc, char *argv[]);
 #  define EVRNET_CPU_IS_BE 1
 #elif defined(__LITTLE_ENDIAN__) || defined(_LITTLE_ENDIAN)
 #  define EVRNET_CPU_IS_LE 1
-#else
+#elif defined(_MSC_VER)
+/* NT is (almost) always LE */
+#  define EVRNET_CPU_IS_LE 1
+#endif
+
+#if !defined(EVRNET_CPU_IS_LE) && !defined(EVRNET_CPU_IS_BE)
 #  error "Unable to determine endianness for this platform, or endianness is neither big nor little"
 #endif
 
+
+/*
+ * Try to detect CPU word size
+ */
 #if defined(__WORDSIZE)
 #  if __WORDSIZE == 64
 #    define EVRNET_CPU_IS_64BIT
@@ -74,15 +84,19 @@ extern int PLAT_Init(int argc, char *argv[]);
 #  else
 #    error "__WORDSIZE is unknown value"
 #  endif
-#elif defined(INTPTR_MAX) && defined(INT64_MAX)
-#  if INTPTR_MAX == INT64_MAX
-#    define EVRNET_CPU_IS_64BIT
+#elif defined(INTPTR_MAX)
+#  if defined(INT64_MAX)
+#    if INTPTR_MAX == INT64_MAX
+#      define EVRNET_CPU_IS_64BIT
+#    endif
 #  elif defined(INT32_MAX)
 #    if INTPTR_MAX == INT32_MAX
 #      define EVRNET_CPU_IS_64BIT
 #    endif
 #  endif
-#else
+#endif
+
+#if !defined(EVRNET_CPU_IS_32BIT) && !defined(EVRNET_CPU_IS_64BIT)
 #  error "Don't know how to detect CPU word size for this platform"
 #endif
 
