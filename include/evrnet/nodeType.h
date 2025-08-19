@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <evrnet/compat.h>
 
+#include <evrnet/compat-struct-pack.h>
 EVRNET_PACK(typedef struct {
 	/* Entire node list size in bytes */
 	uint32_t len;
@@ -45,6 +46,7 @@ EVRNET_PACK(typedef struct {
 	 */
 	uint8_t entries[];
 }, nodeList_t)
+#include <evrnet/compat-struct-pack-end.h>
 
 typedef enum {
 	NODE_DISCOVERY_SOURCE_BROADCAST = 1,

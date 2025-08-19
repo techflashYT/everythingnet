@@ -6,6 +6,8 @@
 #ifndef _EVRNET_ENDIAN_H
 #define _EVRNET_ENDIAN_H
 
+#include <evrnet/compat.h>
+
 /* figure out how to swap 16-bit vals */
 #ifndef __swap16
 #  define EVRNET_NEED_SWAP16

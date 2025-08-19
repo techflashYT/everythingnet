@@ -10,6 +10,7 @@
 #include <evrnet/nodeType.h>
 #include <evrnet/compat.h>
 
+#include <evrnet/compat-struct-pack.h>
 EVRNET_PACK(typedef struct {
 	/* magic number, must be EVRNET_BCAST_MAGIC */
 	uint32_t magic;
@@ -23,4 +24,5 @@ EVRNET_PACK(typedef struct {
 	/* Node list */
 	nodeList_t nodeList;
 }, evrnet_bcast_msg_t)
+#include <evrnet/compat-struct-pack-end.h>
 #endif
