@@ -35,6 +35,7 @@ all: $(TARGET)
 
 # Link
 $(TARGET): $(OBJS)
+	-mkdir $(RTLVL)\bin
 	$(LD) $(LDFLAGS) /OUT:$@ $(OBJS)
 
 # Compile
