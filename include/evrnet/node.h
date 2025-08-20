@@ -7,6 +7,7 @@
 #define _NODE_H
 
 #include <stdint.h>
+#include <string.h>
 #include <evrnet/plat.h>
 #include <evrnet/net.h>
 #include <evrnet/nodeType.h>
@@ -55,72 +56,97 @@ extern void NODE_ListToBE(nodeList_t *nl);
 #define ALIGN8(x) x + (8 - ((uintptr_t)x % 8)) % 8
 
 
-#define ENTRY_SIZE(x) ((uint16_t *)x)
-#define ENTRY_NUM_IP(x) (((uint8_t *)((uintptr_t)x + 2)))
-#define ENTRY_DISTANCE_FROM_ME(x) (((uint8_t *)((uintptr_t)x + 3)))
-#define ENTRY_NODE_NAME(x) ((char *)((uintptr_t)x + 4))
-#define ENTRY_NODE_IPS(x) \
-((uint32_t *)( \
-	ALIGN4( \
-		(uintptr_t)(ENTRY_NODE_NAME(x)) + strlen(ENTRY_NODE_NAME(x)) + 1 \
-	) \
-))
-#define ENTRY_NODE_UUID(x) ((uint64_t *)( \
-	ALIGN8( \
-		(uintptr_t)(ENTRY_NODE_IPS(x)) + ( \
-			*ENTRY_NUM_IP(x) * sizeof(uint32_t) \
-		) \
-	) \
-))
-#define ENTRY_NODE_EVRNET_VER(x) ((char *)( \
-	((uintptr_t)ENTRY_NODE_UUID(x)) + (sizeof(uint64_t) * 2) \
-))
+static inline uint16_t *ENTRY_SIZE(uint8_t *e) {
+	return (uint16_t *)e;
+}
 
-#define ENTRY_NODE_PLATINFO_CAP(x) ((uint32_t *)( \
-	ALIGN4( \
-		((uintptr_t)ENTRY_NODE_EVRNET_VER(x)) + strlen(ENTRY_NODE_EVRNET_VER(x)) + 1 \
-	) \
-))
+static inline uint8_t *ENTRY_NUM_IP(uint8_t *e) {
+	return (uint8_t *)((uintptr_t)e + 2);
+}
 
-#define ENTRY_NODE_PLATINFO_MEMSZ(x) ((int *)( \
-	(uintptr_t)ENTRY_NODE_PLATINFO_CAP(x) + sizeof(uint32_t) \
-))
+static inline uint8_t *ENTRY_DISTANCE_FROM_ME(uint8_t *e) {
+	return (uint8_t *)((uintptr_t)e + 3);
+}
 
-#define ENTRY_NODE_PLATINFO_NAME(x) ((char *)( \
-	(uintptr_t)ENTRY_NODE_PLATINFO_MEMSZ(x) + sizeof(int) \
-))
+static inline char *ENTRY_NODE_NAME(uint8_t *e) {
+	return (char *)((uintptr_t)e + 4);
+}
 
-#define ENTRY_NODE_PLATINFO_OS(x) ((char *)( \
-	(uintptr_t)ENTRY_NODE_PLATINFO_NAME(x) + \
-	strlen(ENTRY_NODE_PLATINFO_NAME(x)) + 1 \
-))
+static inline uint32_t *ENTRY_NODE_IPS(uint8_t *e) {
+	return (uint32_t *)(ALIGN4(
+		(uintptr_t)(ENTRY_NODE_NAME(e)) + strlen(ENTRY_NODE_NAME(e)) + 1
+	));
+}
 
-#define ENTRY_NODE_PLATINFO_ARCH(x) ((char *)( \
-	(uintptr_t)ENTRY_NODE_PLATINFO_OS(x) + \
-	strlen(ENTRY_NODE_PLATINFO_OS(x)) + 1 \
-))
+static inline uint64_t *ENTRY_NODE_UUID(uint8_t *e) {
+	return (uint64_t *)(ALIGN8(
+		(uintptr_t)(ENTRY_NODE_IPS(e)) + (
+			*ENTRY_NUM_IP(e) * sizeof(uint32_t)
+		)
+	));
+}
 
-#define ENTRY_NODE_PLATINFO_CPU(x) ((char *)( \
-	(uintptr_t)ENTRY_NODE_PLATINFO_ARCH(x) + \
-	strlen(ENTRY_NODE_PLATINFO_ARCH(x)) + 1 \
-))
+static inline char *ENTRY_NODE_EVRNET_VER(uint8_t *e) {
+	return (char *)(
+		((uintptr_t)ENTRY_NODE_UUID(e)) + (sizeof(uint64_t) * 2)
+	);
+}
 
-#define ENTRY_NODE_PLATINFO_GPU(x) ((char *)( \
-	(uintptr_t)ENTRY_NODE_PLATINFO_CPU(x) + \
-	strlen(ENTRY_NODE_PLATINFO_CPU(x)) + 1 \
-))
+static inline uint32_t *ENTRY_NODE_PLATINFO_CAP(uint8_t *e) {
+	return (uint32_t *)(ALIGN4(
+		((uintptr_t)ENTRY_NODE_EVRNET_VER(e)) + strlen(ENTRY_NODE_EVRNET_VER(e)) + 1
+	));
+}
+
+static inline int *ENTRY_NODE_PLATINFO_MEMSZ(uint8_t *e) {
+	return (int *)(
+		(uintptr_t)ENTRY_NODE_PLATINFO_CAP(e) + sizeof(uint32_t)
+	);
+}
+
+static inline char *ENTRY_NODE_PLATINFO_NAME(uint8_t *e) {
+	return (char *)(
+		(uintptr_t)ENTRY_NODE_PLATINFO_MEMSZ(e) + sizeof(int)
+	);
+}
+
+static inline char *ENTRY_NODE_PLATINFO_OS(uint8_t *e) {
+	return (char *)(
+		(uintptr_t)ENTRY_NODE_PLATINFO_NAME(e) +
+		strlen(ENTRY_NODE_PLATINFO_NAME(e)) + 1
+	);
+}
+
+static inline char *ENTRY_NODE_PLATINFO_ARCH(uint8_t *e) {
+	return (char *)(
+		(uintptr_t)ENTRY_NODE_PLATINFO_OS(e) +
+		strlen(ENTRY_NODE_PLATINFO_OS(e)) + 1
+	);
+}
+
+static inline char *ENTRY_NODE_PLATINFO_CPU(uint8_t *e) {
+	return (char *)(
+		(uintptr_t)ENTRY_NODE_PLATINFO_ARCH(e) +
+		strlen(ENTRY_NODE_PLATINFO_ARCH(e)) + 1
+	);
+}
+
+static inline char *ENTRY_NODE_PLATINFO_GPU(uint8_t *e) {
+	return (char *)(
+		(uintptr_t)ENTRY_NODE_PLATINFO_CPU(e) +
+		strlen(ENTRY_NODE_PLATINFO_CPU(e)) + 1
+	);
+}
 
 #define ENTRY_NEXT(x) ((uint8_t *)( \
 	(x + *ENTRY_SIZE(x)) \
 ))
 
-#define ENTRY_CALC_SIZE(x) ((uint16_t)( \
-	ALIGN8( \
-		( \
-			((uintptr_t)ENTRY_NODE_PLATINFO_GPU(x) + \
-			strlen(ENTRY_NODE_PLATINFO_GPU(x)) + 1) - (uintptr_t)x \
-		) \
-	) \
-))
+static inline uint16_t ENTRY_CALC_SIZE(uint8_t *e) {
+	return (uint16_t)(ALIGN8(
+		((uintptr_t)ENTRY_NODE_PLATINFO_GPU(e) +
+		strlen(ENTRY_NODE_PLATINFO_GPU(e)) + 1) - (uintptr_t)e
+	));
+}
 
 #endif
