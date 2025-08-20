@@ -22,7 +22,7 @@ CFLAGS = /nologo /W3 /O2 /Zi $(INCLUDES) $(DEFINES)
 LDFLAGS = /nologo /debug
 
 # Target binary
-TARGET = $(RTLVL)\bin\everthingnet.exe
+TARGET = $(RTLVL)\bin\everythingnet.exe
 
 # Source files
 SRC = $(RTLVL)\app\*.c $(RTLVL)\plat\nt4\*.c
