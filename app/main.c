@@ -7,12 +7,6 @@
 #include <stdbool.h>
 #include <unistd.h>
 
-#if _POSIX_TIMERS > 0
-#include <time.h>
-#else
-#include <sys/time.h>
-#endif
-
 #include <evrnet/plat.h>
 #include <evrnet/cap.h>
 #include <evrnet/state.h>
@@ -24,12 +18,6 @@ int main(int argc, char *argv[]) {
 	char* suffix[] = { "KB", "MB", "GB" };
 	char capStr[256];
 	bool keepRunning = true;
-	#if _POSIX_TIMERS > 0
-	struct timespec startTime, endTime;
-	#else
-	struct timeval startTime, endTime;
-	#endif
-
 	ret = 0; suffixNum = 0;
 
 	ret = PLAT_Init(argc, argv);
@@ -64,12 +52,8 @@ int main(int argc, char *argv[]) {
 	while (keepRunning) {
 		long usecToSleep = 500 * 1000; /* 500ms loop time */
 
-		/* get start time (to later calculate time spent doing work) */
-		#if _POSIX_TIMERS > 0
-		clock_gettime(CLOCK_MONOTONIC, &startTime);
-		#else
-		gettimeofday(&startTime, NULL);
-		#endif
+		/* start timer */
+		PLAT_StartTimer();
 
 		/* actually do the networking */
 		NET_HandleBcast();
@@ -82,15 +66,7 @@ int main(int argc, char *argv[]) {
 		/* get end time, to calculate time spent doing work
 		 * and subtract it from time to sleep until next iteration
 		 */
-		#if _POSIX_TIMERS > 0
-		clock_gettime(CLOCK_MONOTONIC, &endTime);
-		usecToSleep -= ((endTime.tv_sec - startTime.tv_sec) * 1000000L) +
-						((endTime.tv_nsec - startTime.tv_nsec) / 1000L);
-		#else
-		gettimeofday(&endTime, NULL);
-		usecToSleep -= ((endTime.tv_sec - startTime.tv_sec) * 1000000L) +
-						(endTime.tv_usec - startTime.tv_usec);
-		#endif
+		usecToSleep -= PLAT_EndTimer();
 
 		/* well damn, we must be running on a 4MHz
 		 * microcontroller or something, how the

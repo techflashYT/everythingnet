@@ -5,3 +5,5 @@ obj-y					 += arm-cpu-list.o
 else ifeq ($(ARCH),arm)
 obj-y					 += arm-cpu-list.o
 endif
+
+obj-$(CONFIG_PLAT_POSIX_TIMERS)		+= posix_timers.o

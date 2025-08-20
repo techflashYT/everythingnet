@@ -87,4 +87,24 @@ extern int PLAT_NetCheckMcastData(evrnet_bcast_msg_t *msg);
 extern int PLAT_NetDoBroadcast(evrnet_bcast_msg_t *msg);
 extern int PLAT_NetDoMulticast(evrnet_bcast_msg_t *msg);
 
+/*
+ * Start a timer / save the current time
+ * Needs to be able to be able to later be used by PLAT_EndTimer
+ * to get the difference in microseconds in time passed between
+ * this function call and PLAT_EndTimer.
+ * How this is ultimately chosen to be implemented is up to the
+ * underlying platform - the app glue does not care what this
+ * function really does.
+ */
+extern void PLAT_StartTimer(void);
+
+/*
+ * End the timer and return the elapsed time
+ * Returns the elapsed time in microseconds between the previous
+ * PLAT_StartTimer call and this call.  Any temporary data structures
+ * used for the timer may now be destroyed, as this will only be called
+ * once, after PLAT_StartTimer.
+ */
+extern uint32_t PLAT_EndTimer(void);
+
 #endif

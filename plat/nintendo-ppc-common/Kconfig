@@ -1,5 +1,6 @@
 config NINTENDO_PPC_COMMON
 	bool
 	default n
+	select PLAT_POSIX_TIMERS
 	#select PPC32
 	#select PLAT_NEEDS_INTERNAL_PRINTF
