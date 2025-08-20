@@ -13,7 +13,7 @@ RTLVL = ..\..
 INCLUDES = /I$(RTLVL)\include /I$(RTLVL)\plat\nt4\libc\include
 
 # Preprocessor definitions
-DEFINES = /DCONFIG_NET_MAX_PKT_KB=64
+DEFINES = /DCONFIG_PLAT_NT4 /DCONFIG_NET_MAX_PKT_KB=64
 
 # Compiler flags
 CFLAGS = /nologo /W3 /O2 /Zi $(INCLUDES) $(DEFINES)
