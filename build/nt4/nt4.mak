@@ -28,7 +28,7 @@ TARGET = $(RTLVL)\bin\everthingnet.exe
 SRC = $(RTLVL)\app\*.c $(RTLVL)\plat\nt4\*.c
 
 # Object files
-OBJS = $(SRC:.c=.o)
+OBJS = $(SRC:.c=.obj)
 
 # Default rule
 all: $(TARGET)
@@ -40,8 +40,8 @@ $(TARGET): $(OBJS)
 
 # Compile
 #$(RTLVL)\app\%.o: %.c
-.c.o:
-	$(CC) $(CFLAGS) /c $<
+.c.obj:
+	$(CC) $(CFLAGS) /c $< /Fo$(@:*.obj=)
 
 clean:
 	-del $(OBJS) $(TARGET)
