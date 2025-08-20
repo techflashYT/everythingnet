@@ -1,9 +1,11 @@
 bin
 *.o
+*.obj
 built-in*
 .built
 .tmp*
 *.d
+*.pdb
 .*.cmd
 .config*
 include/config
