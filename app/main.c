@@ -5,7 +5,6 @@
 
 #include <stdio.h>
 #include <stdbool.h>
-#include <unistd.h>
 
 #include <evrnet/plat.h>
 #include <evrnet/cap.h>
@@ -73,12 +72,9 @@ int main(int argc, char *argv[]) {
 		 * hell did that take so long?
 		 * Either way, we're running behind, so don't
 		 * sleep at all.
-		 *
-		 * TODO: nanosleep() is more precise, but harder
-		 * to use, and no trivial way to detect if it exists
 		 */
 		if (usecToSleep > 0)
-			usleep(usecToSleep);
+			PLAT_USleep(usecToSleep);
 	}
 
 	APP_CleanupAndExit(0);

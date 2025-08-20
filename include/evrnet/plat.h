@@ -87,6 +87,7 @@ extern int PLAT_NetCheckMcastData(evrnet_bcast_msg_t *msg);
 extern int PLAT_NetDoBroadcast(evrnet_bcast_msg_t *msg);
 extern int PLAT_NetDoMulticast(evrnet_bcast_msg_t *msg);
 
+
 /*
  * Start a timer / save the current time
  * Needs to be able to be able to later be used by PLAT_EndTimer
@@ -106,5 +107,14 @@ extern void PLAT_StartTimer(void);
  * once, after PLAT_StartTimer.
  */
 extern uint32_t PLAT_EndTimer(void);
+
+/*
+ * Sleep for [usec] microseconds.
+ * This will almost certainly be called with usec >1000.
+ * This does not need to actually be microsecond-accurate,
+ * as long as it can land within at least a few miliseconds,
+ * it should all be fine.
+ */
+extern void PLAT_USleep(uint32_t usec);
 
 #endif

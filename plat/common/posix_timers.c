@@ -38,3 +38,7 @@ uint32_t PLAT_EndTimer(void) {
 		(endTime.tv_usec - startTime.tv_usec);
 	#endif
 }
+
+void PLAT_USleep(uint32_t usec) {
+	usleep(usec);
+}
