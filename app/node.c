@@ -40,9 +40,9 @@ static char *discoverySrcToStr(nodeDiscoverySrc_t src) {
 }
 
 static void NODE_DumpEntry(uint8_t *e) {
-	int i;
 	char capTemp[256];
 #if 0
+	int i;
 	char ip[INET_ADDRSTRLEN];
 #endif
 
