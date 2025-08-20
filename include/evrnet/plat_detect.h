@@ -21,6 +21,7 @@
 #define PLAT_STR_ARMV82  "ARMv8.2"
 #define PLAT_STR_ARMV9   "ARMv9"
 #define PLAT_STR_PPC32   "PowerPC (32-bit Big Endian)"
+#define PLAT_STR_PPC32LE "PowerPC (32-bit Little Endian)"
 #define PLAT_STR_PPC64   "PowerPC (64-bit Big Endian)"
 #define PLAT_STR_PPC64LE "PowerPC (64-bit Little Endian)"
 
@@ -103,15 +104,24 @@
 #elif defined(__AARCH64__) || defined(__aarch64__)
 #  define PLAT_STR_NATIVE PLAT_STR_ARMV80 /* FIXME: More granular? */
 #  define EVRNET_CPU_AARCH64
-#elif defined(__PPC__) && defined(EVRNET_CPU_IS_32BIT)
-#  define PLAT_STR_NATIVE PLAT_STR_PPC32
-#  define EVRNET_CPU_PPC32
-#elif defined(__PPC__) && defined(EVRNET_CPU_IS_64BIT) && defined(EVRNET_CPU_IS_BE)
-#  define PLAT_STR_NATIVE PLAT_STR_PPC64
-#  define EVRNET_CPU_PPC64
-#elif defined(__PPC__) && defined(EVRNET_CPU_IS_64BIT) && defined(EVRNET_CPU_IS_LE)
-#  define PLAT_STR_NATIVE PLAT_STR_PPC64LE
-#  define EVRNET_CPU_PPC64LE
+#elif defined(__PPC__) || defined(_M_PPC)
+#  if defined(EVRNET_CPU_IS_32BIT)
+#    if defined(EVRNET_CPU_IS_BE)
+#      define PLAT_STR_NATIVE PLAT_STR_PPC32
+#      define EVRNET_CPU_PPC32
+#    elif defined(EVRNET_CPU_IS_LE)
+#      define PLAT_STR_NATIVE PLAT_STR_PPC32LE
+#      define EVRNET_CPU_PPC32LE
+#    endif
+#  elif defined(EVRNET_CPU_IS_64BIT)
+#    if defined(EVRNET_CPU_IS_BE)
+#      define PLAT_STR_NATIVE PLAT_STR_PPC64
+#      define EVRNET_CPU_PPC64
+#    elif defined(EVRNET_CPU_IS_LE)
+#      define PLAT_STR_NATIVE PLAT_STR_PPC64LE
+#      define EVRNET_CPU_PPC64LE
+#    endif
+#  endif
 #else
 #  error "Unknown architecture"
 #endif
