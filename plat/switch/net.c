@@ -148,7 +148,7 @@ int PLAT_NetCheckBcastData(evrnet_bcast_msg_t *msg) {
 	if (E_BEToHost_32(msg->magic) != EVRNET_BCAST_MAGIC)
 		return 0; /* invalid magic */
 
-	if (E_BEToHost_32(msg->nodeList.len) + (sizeof(evrnet_bcast_msg_t) - sizeof(nodeList_t)) != ret) {
+	if (E_BEToHost_32(msg->nodeList.len) + (sizeof(evrnet_bcast_msg_t) - sizeof(nodeList_t)) != (uint32_t)ret) {
 		fprintf(stderr,
 			"Malformed (or malicious?) packet received, "
 			"reported length (%d) != received (%d).  "
