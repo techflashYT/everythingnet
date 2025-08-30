@@ -16,7 +16,6 @@
 
 static evrnet_bcast_msg_t *msg;
 static uint32_t counter = 0;
-static bool knownBadLocalName = false;
 
 void NET_Init(void) {
 	msg = malloc(CONFIG_NET_MAX_PKT_KB * 1024);

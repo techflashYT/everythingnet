@@ -32,7 +32,6 @@ static int knownIfaces;
 
 static void addIface(const char *ipStr, int num, uint32_t bcastMask) {
 	int i;
-	char netMaskStr[4];
 	for (i = 0; ; i++) {
 		if (bcastMask & (1 << i) || i >= 32)
 			break;
@@ -48,7 +47,7 @@ static void addIface(const char *ipStr, int num, uint32_t bcastMask) {
 int LINUX_NetInit(void) {
 	struct ifaddrs *ifaces, *ifacesHead;
 	int ret, family, flags, option = 1, option2 = 0;
-	uint32_t address, bcastMask;
+	uint32_t bcastMask;
 	char host[NI_MAXHOST];
 
 	/* clean up all state, just in case; networking can be fiddly */

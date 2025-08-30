@@ -230,7 +230,6 @@ void NODE_ListToBE(nodeList_t *nl) {
 
 void NODE_ListToNative(nodeList_t *nl) {
 	uint8_t *e = nl->entries;
-	int i;
 
 	nl->version = E_BEToHost_32(nl->version);
 	nl->len = E_BEToHost_32(nl->len);

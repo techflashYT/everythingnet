@@ -32,6 +32,24 @@ config PLAT_SUPPORTS_MULTICAST
 	bool
 	default n
 
+config C_STD
+	string "C Standard version"
+	default "gnu89"
+	default "gnu99" if PLAT_NINTENDO_PPC_COMMON
+	default "gnu99" if PLAT_SWITCH
+	help
+	  The version of the C standard to compile as.
+	  EverythingNet is designed to be compatible down to
+	  ANSI C89, though some platforms may require higher
+	  standards, either due to the platform's own headers
+	  (such is the case for GameCube and Wii w/ libogc),
+	  or due to functionality that EverythingNet depends on
+	  (such is the case for Linux).
+
+	  The default value should be the minimum required standard
+	  for your platform, however you may adjust this as you
+	  see fit.
+
 config GFX_NEEDS_LIBGL
 	bool
 	default n

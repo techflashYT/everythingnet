@@ -13,10 +13,7 @@ sane_printf_flags := -Dvprintf=sane_vprintf \
 -Dsnprintf=sane_snprintf \
 -Dfctprintf=sane_fctprintf
 
-ifeq ($(CONFIG_PLAT_NEEDS_INTERNAL_PRINTF),y)
-# requires at least gnu99 to build properly
-CFLAGS += $(sane_printf_flags) -std=gnu99
-endif
+CFLAGS += -Wall -Wextra -Wformat=2 -std=$(CONFIG_C_STD)
 
 ifeq ($(CONFIG_NINTENDO_PPC_COMMON),y)
 PREFIX	:=	powerpc-eabi-

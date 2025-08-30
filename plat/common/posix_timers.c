@@ -6,17 +6,19 @@
 #include <unistd.h>
 #include <stdint.h>
 
-#if _POSIX_TIMERS > 0
-#include <time.h>
+#if defined(_POSIX_TIMERS) && _POSIX_TIMERS > 0 && defined(_POSIX_MONOTONIC_CLOCK) && _POSIX_MONOTONIC_CLOCK > 1
+#  define EVRNET_TIMESPEC
+#  include <time.h>
 struct timespec startTime;
 #else
-#include <sys/time.h>
+#  define EVRNET_TIMEVAL
+#  include <sys/time.h>
 struct timeval startTime;
 #endif
 
 void PLAT_StartTimer(void) {
 	/* get start time (to later calculate time spent doing work) */
-	#if _POSIX_TIMERS > 0
+	#ifdef EVRNET_TIMESPEC
 	clock_gettime(CLOCK_MONOTONIC, &startTime);
 	#else
 	gettimeofday(&startTime, NULL);
@@ -24,7 +26,7 @@ void PLAT_StartTimer(void) {
 }
 
 uint32_t PLAT_EndTimer(void) {
-	#if _POSIX_TIMERS > 0
+	#ifdef EVRNET_TIMESPEC
 	struct timespec endTime;
 
 	clock_gettime(CLOCK_MONOTONIC, &endTime);

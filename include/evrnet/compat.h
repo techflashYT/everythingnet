@@ -27,7 +27,14 @@
 /* available as a MS extension '__inline' */
 #  define inline __inline
 #elif defined(__GNUC__)
-/* available as a GNU extension 'inline' */
+#  if defined(__STDC_VERSION__) && __STDC_VERSION__ > 199901L
+/* available as 'inline' */
+#  elif !defined(__STRICT_ANSI__)
+/* available as GNU extension 'inline' */
+#  else
+#    warning "No known way to do inline functions in this compiler"
+#    define inline /* nothing */
+#  endif
 #elif defined(__STDC_VERSION__) && __STDC_VERSION__ < 199901L
 #  warning "No known way to do inline functions in this compiler"
 #  define inline /* nothing */

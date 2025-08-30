@@ -19,6 +19,7 @@
 #include <netdb.h>
 #include <sys/types.h>
 
+#include <evrnet/endian.h>
 #include <evrnet/state.h>
 #include <evrnet/net.h>
 #include <evrnet/netType.h>
@@ -35,9 +36,9 @@ static uint32_t addrlen;
 
 
 int SWITCH_NetInit(void) {
-	int ret, family, flags, i, option = 1;
-	char netMaskStr[4], *host;
-	uint32_t address, bcastMask;
+	int ret, flags, i, option = 1;
+	char *host;
+	uint32_t bcastMask;
 
 	/* clean up all state, just in case; networking can be fiddly */
 	addrlen = sizeof(struct sockaddr_in);
@@ -116,7 +117,7 @@ int SWITCH_NetInit(void) {
 }
 
 int PLAT_NetCheckBcastData(evrnet_bcast_msg_t *msg) {
-	int ret, i;
+	int ret;
 
 	ret = poll(&socketPollFd, 1, 0);
 	if (ret < 0) {
@@ -163,7 +164,7 @@ int PLAT_NetCheckBcastData(evrnet_bcast_msg_t *msg) {
 }
 
 int PLAT_NetDoBroadcast(evrnet_bcast_msg_t *msg) {
-	int ret, i;
+	int ret;
 	ret = sendto(bcastSock, msg, E_BEToHost_32(msg->nodeList.len) + (sizeof(evrnet_bcast_msg_t) - sizeof(nodeList_t)), 0,
 		(struct sockaddr*)&bcastAddr, addrlen);
 	if (ret < 0) {
