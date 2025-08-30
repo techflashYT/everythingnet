@@ -206,7 +206,7 @@ int PLAT_NetCheckBcastData(evrnet_bcast_msg_t *msg) {
 	}
 
 	if (ret <= 0 || !(bcastSocketPollFd.revents & POLLIN))
-		goto mcast; /* no data */
+		return 0; /* no data */
 
 	for (i = 0; i < knownIfaces; i++) {
 		ret = recvfrom(bcastSock, msg, CONFIG_NET_MAX_PKT_KB * 1024,
@@ -244,7 +244,12 @@ int PLAT_NetCheckBcastData(evrnet_bcast_msg_t *msg) {
 		return 1; /* new message */
 	}
 
-mcast:
+	return 0; /* no new data on any interface */
+}
+
+int PLAT_NetCheckMcastData(evrnet_bcast_msg_t *msg) {
+	int ret;
+
 	ret = poll(&mcastSocketPollFd, 1, 0);
 	if (ret < 0) {
 		perror("poll");
@@ -287,10 +292,6 @@ mcast:
 	}
 
 	return 1; /* new message */
-}
-
-int PLAT_NetCheckMcastData(evrnet_bcast_msg_t *msg) {
-	return 0;
 }
 
 int PLAT_NetDoBroadcast(evrnet_bcast_msg_t *msg) {
