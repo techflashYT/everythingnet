@@ -3,14 +3,14 @@
  * Copyright (C) 2025 Techflash
  */
 
-#include "evrnet/node.h"
-#include <asm-generic/errno-base.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/utsname.h>
 
+#include <evrnet/node.h>
 #include <evrnet/cap.h>
 #include <evrnet/plat.h>
 #include <evrnet/plat/linux.h>
