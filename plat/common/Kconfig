@@ -7,6 +7,26 @@ config PLAT_POSIX_LIKE
 	select PLAT_POSIX_TIMERS
 	default n
 
+config PLAT_HAS_GLX
+	bool
+	default n
+
+config PLAT_HAS_X11
+	bool
+	default n
+
+config PLAT_HAS_WAYLAND
+	bool
+	default n
+
+config PLAT_HAS_DRM
+	bool
+	default n
+
+config PLAT_HAS_FBDEV
+	bool
+	default n
+
 config PLAT_NEEDS_INTERNAL_LIBC
 	bool
 	default n
@@ -61,30 +81,31 @@ config GFX_NEEDS_LIBX11
 config GFX_GLX
 	bool "Xorg/GLX graphics support"
 	default y
-	depends on PLAT_POSIX_LIKE
+	depends on PLAT_HAS_X11
+	depends on PLAT_HAS_OPENGL
 	select GFX_NEEDS_LIBGL
 	select GFX_NEEDS_LIBX11
 
 config GFX_RAW_XORG
 	bool "Direct Xorg/Xlib graphics support"
 	default y
-	depends on PLAT_POSIX_LIKE
+	depends on PLAT_HAS_X11
 	select GFX_NEEDS_LIBX11
 
 config GFX_WAYLAND
 	bool "Wayland/EGL graphics support"
 	default y
-	depends on PLAT_POSIX_LIKE
+	depends on PLAT_HAS_WAYLAND
 
 config GFX_DRM
 	bool "DRM/KMS graphics support"
 	default y
-	depends on PLAT_POSIX_LIKE
+	depends on PLAT_HAS_DRM
 
 config GFX_FB
 	bool "Framebuffer graphics support"
 	default y
-	depends on PLAT_POSIX_LIKE
+	depends on PLAT_HAS_FBDEV
 
 config NET_MAX_INT
 	int "Maximum allowed network interfaces"

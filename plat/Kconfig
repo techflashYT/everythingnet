@@ -39,10 +39,38 @@ choice
 		select PLAT_POSIX_LIKE
 		select PLAT_CAN_HAVE_MULTIPLE_INTERFACES
 		select PLAT_SUPPORTS_MULTICAST
+		select PLAT_HAS_GLX
+		select PLAT_HAS_X11
+		select PLAT_HAS_WAYLAND
+		select PLAT_HAS_DRM
+		select PLAT_HAS_FBDEV
 		help
 		  Build for targetting a GNU/Linux system.  Can be cross
 		  compiled like normal, or natively compiled if your host
 		  is also Linux.
+
+	if (ARCH=x86 || ARCH=x86_64 || ARCH=arm64 || ARCH=powerpc)
+	config PLAT_OSX
+		bool "Mac OS X"
+		select PLAT_SUPPORTS_HOST
+		select PLAT_SUPPORTS_DISPLAY
+		select PLAT_SUPPORTS_SOUND
+		select PLAT_SUPPORTS_INPUT
+		select PLAT_SUPPORTS_REL_INPUT
+		select PLAT_SUPPORTS_ABS_INPUT
+		select PLAT_POSIX_LIKE
+		select PLAT_CAN_HAVE_MULTIPLE_INTERFACES
+		select PLAT_SUPPORTS_MULTICAST
+		# select PLAT_HAS_X11 --- but does it have libX11?  doesn't seem to....
+		select PLAT_HAS_COCOA
+		help
+		  Build for targetting a Mac OS X system.  Can be cross
+		  compiled like normal, or natively compiled if your host
+		  is also OSX.
+
+		  Supports targetting at least Mac OS 10.5.  Older versions
+		  may work but are currently untested.
+	endif
 
 	if (ARCH=x86 || ARCH=x86_64 || ARCH=arm64 || ARCH=arm)
 	config PLAT_WINDOWS

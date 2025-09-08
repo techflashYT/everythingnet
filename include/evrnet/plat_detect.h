@@ -104,7 +104,7 @@
 #elif defined(__AARCH64__) || defined(__aarch64__)
 #  define PLAT_STR_NATIVE PLAT_STR_ARMV80 /* FIXME: More granular? */
 #  define EVRNET_CPU_AARCH64
-#elif defined(__PPC__) || defined(_M_PPC) || defined(__powerpc__) || defined(_ARCH_PPC)
+#elif defined(__POWERPC__) || defined(__PPC__) || defined(_M_PPC) || defined(__powerpc__) || defined(_ARCH_PPC)
 #  if defined(EVRNET_CPU_IS_32BIT)
 #    if defined(EVRNET_CPU_IS_BE)
 #      define PLAT_STR_NATIVE PLAT_STR_PPC32

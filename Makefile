@@ -692,8 +692,14 @@ bin/everythingnet: bin/everythingnet_unstripped
 ifeq ($(SKIP_STRIP),y)
 	$(Q)cp $< $@
 else
+# the OSX 'strip' doesn't understand this syntax...
+ifeq ($(CONFIG_PLAT_OSX),y)
+	$(Q)$(STRIP) bin/everythingnet_unstripped
+	$(Q)cp $< $@
+else
 	$(Q)$(STRIP) -s --remove-section=.note --remove-section=.comment \
 		bin/everythingnet_unstripped -o $@
+endif
 # strip is confused by PIE executable and does not set exec bits
 	$(Q)chmod a+x $@
 endif
