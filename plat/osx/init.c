@@ -7,6 +7,7 @@
 #include <stdlib.h>
 
 #include <evrnet/state.h>
+#include <evrnet/plat/posix.h>
 #include <evrnet/plat/osx.h>
 int PLAT_Init(int argc, char *argv[]) {
 	int ret;
@@ -22,6 +23,6 @@ int PLAT_Init(int argc, char *argv[]) {
 		return ret;
 	}
 
-	OSX_NetInit();
+	POSIX_NetInit();
 	return 0;
 }

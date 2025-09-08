@@ -7,8 +7,8 @@
 #include <unistd.h>
 #include <switch.h>
 #include <evrnet/plat.h>
+#include <evrnet/plat/posix.h>
 #include <evrnet/plat/switch.h>
-#include <evrnet/plat/switch_net.h>
 #include <evrnet/state.h>
 
 PadState SWITCH_GamePadState;
@@ -33,6 +33,7 @@ int PLAT_Init(int argc, char *argv[]) {
 	SWITCH_GatherInfo();
 
 	/* init networking */
-	SWITCH_NetInit();
+	socketInitializeDefault();
+	POSIX_NetInit();
 	return 0;
 }

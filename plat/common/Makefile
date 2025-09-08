@@ -7,3 +7,4 @@ obj-y					 += arm-cpu-list.o
 endif
 
 obj-$(CONFIG_PLAT_POSIX_TIMERS)		+= posix_timers.o
+obj-$(CONFIG_PLAT_POSIX_NET)		+= posix_net.o

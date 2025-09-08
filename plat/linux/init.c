@@ -7,9 +7,9 @@
 #include <stdlib.h>
 
 #include <evrnet/state.h>
+#include <evrnet/plat/posix.h>
 #include <evrnet/plat/linux.h>
 #include <evrnet/plat/linux_gfx.h>
-#include <evrnet/plat/linux_net.h>
 int PLAT_Init(int argc, char *argv[]) {
 	int ret;
 	(void)argc;
@@ -30,6 +30,6 @@ int PLAT_Init(int argc, char *argv[]) {
 	 * want to do things like initializing an X11/Wayland
 	 * window here.
 	 */
-	LINUX_NetInit();
+	POSIX_NetInit();
 	return 0;
 }

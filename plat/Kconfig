@@ -172,6 +172,7 @@ choice
 		select PLAT_SUPPORTS_ABS_INPUT
 		select PLAT_NEEDS_FLUSH_OUTPUT
 		select PLAT_POSIX_TIMERS
+		select PLAT_POSIX_NET
 		help
 		  Build EverythingNet targetting the Nintendo Switch running
 		  Horizon OS, using libnx.  An internet connection must be

@@ -2,9 +2,14 @@ config PLAT_POSIX_TIMERS
 	bool
 	default n
 
+config PLAT_POSIX_NET
+	bool
+	default n
+
 config PLAT_POSIX_LIKE
 	bool
 	select PLAT_POSIX_TIMERS
+	select PLAT_POSIX_NET
 	default n
 
 config PLAT_HAS_GLX

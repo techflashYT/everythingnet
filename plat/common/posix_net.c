@@ -1,5 +1,5 @@
 /*
- * EverythingNet - Linux Platform Specific Features - Networking Support
+ * EverythingNet - Common Platform Specific Features - POSIX networking
  * Copyright (C) 2025 Techflash
  */
 
@@ -14,7 +14,6 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <sys/types.h>
-#include <ifaddrs.h>
 
 #include <evrnet/state.h>
 #include <evrnet/net.h>
@@ -22,14 +21,23 @@
 #include <evrnet/nodeType.h>
 #include <evrnet/endian.h>
 
-static int mcastSock, bcastSock;
-static struct pollfd bcastSocketPollFd, mcastSocketPollFd;
-static struct sockaddr_in bcastAddr[CONFIG_NET_MAX_INT];
-static struct sockaddr_in mcastAddr, anyAddr;
+#ifdef CONFIG_PLAT_SWITCH
+#include <evrnet/plat/switch_perror.h>
+#endif
+
+static int bcastSock;
+static struct pollfd bcastSocketPollFd;
+static struct sockaddr_in anyAddr, bcastAddr[CONFIG_NET_MAX_INT];
+#ifdef CONFIG_PLAT_SUPPORTS_MULTICAST
+static int mcastSock;
+static struct pollfd mcastSocketPollFd;
+static struct sockaddr_in mcastAddr;
+#endif
 static uint32_t addrlen;
 static int knownIfaces;
 
-
+#ifdef CONFIG_PLAT_CAN_HAVE_MULTIPLE_INTERFACES
+#include <ifaddrs.h>
 static void addIface(const char *ipStr, int num, uint32_t bcastMask) {
 	int i;
 	for (i = 0; ; i++) {
@@ -43,20 +51,36 @@ static void addIface(const char *ipStr, int num, uint32_t bcastMask) {
 	inet_pton(AF_INET, ipStr, &bcastAddr[num].sin_addr);
 	bcastAddr[num].sin_port = E_HostToBE_16(EVRNET_BCAST_PORT);
 }
+#else
+#include <unistd.h>
+#endif
 
-int LINUX_NetInit(void) {
+int POSIX_NetInit(void) {
+	#ifdef CONFIG_PLAT_CAN_HAVE_MULTIPLE_INTERFACES
 	struct ifaddrs *ifaces, *ifacesHead;
-	int ret, family, flags, option = 1, option2 = 0;
-	uint32_t bcastMask;
+	int family;
 	char host[NI_MAXHOST];
+	#else
+	int i;
+	char *host;
+	#endif
+	
+	int ret, flags, option = 1;
+	#ifdef CONFIG_PLAT_SUPPORTS_MULTICAST
+	int option2 = 0;
+	#endif
+	uint32_t bcastMask;
 
 	/* clean up all state, just in case; networking can be fiddly */
 	addrlen = sizeof(struct sockaddr_in);
-	bcastSock = 0, mcastSock = 0;
+	bcastSock = 0;
 	memset(&bcastSocketPollFd, 0, sizeof(struct pollfd));
-	memset(&mcastSocketPollFd, 0, sizeof(struct pollfd));
 	memset(bcastAddr, 0, addrlen * CONFIG_NET_MAX_INT);
+	#ifdef CONFIG_PLAT_SUPPORTS_MULTICAST
+	mcastSock = 0;
+	memset(&mcastSocketPollFd, 0, sizeof(struct pollfd));
 	memset(&mcastAddr, 0, addrlen);
+	#endif
 	memset(&anyAddr, 0, addrlen);
 	knownIfaces = 0;
 
@@ -101,6 +125,7 @@ int LINUX_NetInit(void) {
 	bcastSocketPollFd.fd = bcastSock;
 	bcastSocketPollFd.events = POLLIN;
 
+	#ifdef CONFIG_PLAT_CAN_HAVE_MULTIPLE_INTERFACES
 	/* loop over every interface, and see if it has an IP.
 	 * if it has an IP (we can talk on it), add it with addIface().
 	 */
@@ -155,7 +180,33 @@ out:
 		ifaces = ifaces->ifa_next;
 	}
 	freeifaddrs(ifacesHead);
+	#else
+	knownIfaces = 1;
+	/* set up the address */
+	bcastAddr[0].sin_family = AF_INET;
+	puts("POSIX-NET: Unable to determine netmask on this platform: guessing /24");
+	PLAT_FlushOutput();
+	#ifdef EVRNET_CPU_IS_LE
+		bcastMask = 0xff000000;
+	#elif defined(EVRNET_CPU_IS_BE)
+		bcastMask = 0x000000ff;
+	#else
+		#error "???"
+	#endif
 
+	bcastAddr[0].sin_addr.s_addr = gethostid() | bcastMask;
+	bcastAddr[0].sin_port = E_HostToBE_16(EVRNET_BCAST_PORT);
+
+	host = inet_ntoa(bcastAddr[0].sin_addr);
+
+	for (i = 0; ; i++) {
+	if (bcastMask & (1 << i) || i >= 32)
+		break;
+	}
+	printf("using broadcast ip %s/%d\n", host, i);
+	#endif
+
+	#ifdef CONFIG_PLAT_SUPPORTS_MULTICAST
 	/* now set up multicast */
 	/* make the socket */
 	mcastSock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
@@ -191,6 +242,7 @@ out:
 	/* set up pollfd */
 	mcastSocketPollFd.fd = mcastSock;
 	mcastSocketPollFd.events = POLLIN;
+	#endif
 
 	NET_Init();
 	return 0;
@@ -247,6 +299,7 @@ int PLAT_NetCheckBcastData(evrnet_bcast_msg_t *msg) {
 	return 0; /* no new data on any interface */
 }
 
+#ifdef CONFIG_PLAT_SUPPORTS_MULTICAST
 int PLAT_NetCheckMcastData(evrnet_bcast_msg_t *msg) {
 	int ret;
 
@@ -293,6 +346,12 @@ int PLAT_NetCheckMcastData(evrnet_bcast_msg_t *msg) {
 
 	return 1; /* new message */
 }
+#else
+int PLAT_NetCheckMcastData(evrnet_bcast_msg_t *msg) {
+	(void)msg;
+	return 0;
+}
+#endif
 
 int PLAT_NetDoBroadcast(evrnet_bcast_msg_t *msg) {
 	int ret, i;
@@ -308,6 +367,7 @@ int PLAT_NetDoBroadcast(evrnet_bcast_msg_t *msg) {
 	return 0;
 }
 
+#ifdef CONFIG_PLAT_SUPPORTS_MULTICAST
 int PLAT_NetDoMulticast(evrnet_bcast_msg_t *msg) {
 	int ret;
 	size_t size = E_BEToHost_32(msg->nodeList.len) + (sizeof(evrnet_bcast_msg_t) - sizeof(nodeList_t));
@@ -320,4 +380,9 @@ int PLAT_NetDoMulticast(evrnet_bcast_msg_t *msg) {
 
 	return 0;
 }
-
+#else
+int PLAT_NetDoMulticast(evrnet_bcast_msg_t *msg) {
+	(void)msg;
+	return -1;
+}
+#endif
