@@ -4,6 +4,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
@@ -104,8 +105,13 @@ int OSX_GatherCPUInfo() {
 		}
 	}
 #else
-	size_t length = sizeof(PLAT_Info.cpu);
-	if (sysctlbyname("machdep.cpu.brand_string", &PLAT_Info.cpu, &length, NULL, 0)) {
+	size_t length = 128;
+	PLAT_Info.cpu = malloc(length);
+	if (!PLAT_Info.cpu) {
+		perror("malloc");
+		return -ENOMEM;
+	}
+	if (sysctlbyname("machdep.cpu.brand_string", PLAT_Info.cpu, &length, NULL, 0)) {
 		perror("sysctlbyname for machdep.cpu.brand_string failed");
 		return -ENOSYS;
 	}
