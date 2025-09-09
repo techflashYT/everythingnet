@@ -73,8 +73,20 @@
 #    if INTPTR_MAX == INT64_MAX
 #      define EVRNET_CPU_IS_64BIT
 #    endif
-#  elif defined(INT32_MAX)
+#  endif
+#  if defined(INT32_MAX)
 #    if INTPTR_MAX == INT32_MAX
+#      define EVRNET_CPU_IS_32BIT
+#    endif
+#  endif
+#elif defined(__INTPTR_MAX__)
+#  if defined(__INT32_MAX__)
+#    if __INTPTR_MAX__ == __INT32_MAX__
+#      define EVRNET_CPU_IS_32BIT
+#    endif
+#  endif
+#  if defined(__INT64_MAX__)
+#    if __INTPTR_MAX__ == __INT64_MAX__
 #      define EVRNET_CPU_IS_64BIT
 #    endif
 #  endif
