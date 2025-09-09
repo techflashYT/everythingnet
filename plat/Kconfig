@@ -100,6 +100,7 @@ choice
 		select PLAT_SUPPORTS_INPUT
 		select PLAT_SUPPORTS_REL_INPUT
 		select PLAT_SUPPORTS_ABS_INPUT
+		select PLAT_POSIX_TIMERS
 		help
 		  Support running on MS-DOS or compatible operating systems.
 		  Sound playback requires a SoundBlaster 16 or compatible
