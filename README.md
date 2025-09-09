@@ -27,8 +27,8 @@ EverythingNet is a utility that lets you mesh together many devices, and display
 ## Supported platforms
 The following platforms are planned to be supported for the initial release:
 - **Full Support** - Can host apps, provide input, and display apps
-  - Windows (unsure about minimum version, will need to see as I go), x86, x64, ARM64, [if possible within version constraints: ARM32 (Surface RT / 2), Itanium, PowerPC, MIPS, Alpha]
-  - MacOS (same uncertainty about version), for x86, ARM64/Apple Silicon, [if possible within version constraints: 32-bit PowerPC (60x - G4), 64-bit PowerPC (G5)].
+  - Windows (unsure about minimum version, will need to see as I go), x86, x64, ARM64, ARM32 (Surface RT / 2), Itanium, PowerPC, MIPS, Alpha
+  - MacOS for i386 (untested), x86\_64, ARM64/Apple Silicon (untested), 32-bit PowerPC (tested on G4, *probably* runs on G3 and 60x), 64-bit PowerPC (G5) (untested).
   - Linux (any version that you can get it to build for), for any supported architecture
   - BSDs (any version that you can get it to build for), for any supported architecture
 - **Input/View Only** - These platforms can't host apps due to software limitations
