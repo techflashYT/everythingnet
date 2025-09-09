@@ -110,6 +110,12 @@ choice
 		  to be installed to function. Runs on any 386 or later CPU.
 		  Requires a CGA, EGA, or VGA or compatible graphics adapter
 		  for graphics output beyond the text-mode startup banner.
+
+		  NOTE: If you do not have a DPMI server installed, you must
+		  get one!  You can get a FOSS one here:
+		  https://sandmann.dotster.com/cwsdpmi/
+
+		  The official releases are always bundled with CWSDPMI.
 	endif
 
 	if ARCH=powerpc
