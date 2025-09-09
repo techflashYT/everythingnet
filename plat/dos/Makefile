@@ -1,1 +1,1 @@
-obj-y	+= init.o info.o
+obj-y	+= init.o info.o net.o
