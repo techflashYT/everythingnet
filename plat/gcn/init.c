@@ -10,6 +10,9 @@
 #include <evrnet/plat/nintendo-ppc.h>
 
 int PLAT_Init(int argc, char *argv[]) {
+	(void)argc;
+	(void)argv;
+
 	/* Initialize everything common between the GameCube and Wii */
 	NPPC_Init();
 
