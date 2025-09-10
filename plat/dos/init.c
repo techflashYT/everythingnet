@@ -4,7 +4,10 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 
+#include <evrnet/plat/dos.h>
+#include <evrnet/node.h>
 #include <evrnet/state.h>
 
 int PLAT_Init(int argc, char *argv[]) {
@@ -14,8 +17,13 @@ int PLAT_Init(int argc, char *argv[]) {
 	STATE_Init();
 	G_State.exitCallbacks.exit = exit;
 
+	strcpy(NODE_LocalName, "DOS PC");
+
+	NET_Init();
+
 	/*
-	 * TODO: Detect CPU, RAM size, DOS version, etc
+	 * TODO: Detect RAM size, DOS version, etc
 	 */
+	DOS_GatherCPUInfo();
 	return 0;
 }
