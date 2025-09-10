@@ -62,7 +62,6 @@ choice
 		select PLAT_CAN_HAVE_MULTIPLE_INTERFACES
 		select PLAT_SUPPORTS_MULTICAST
 		# select PLAT_HAS_X11 --- but does it have libX11?  doesn't seem to....
-		select PLAT_HAS_COCOA
 		help
 		  Build for targetting a Mac OS X system.  Can be cross
 		  compiled like normal, or natively compiled if your host
