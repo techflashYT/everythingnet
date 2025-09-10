@@ -21,9 +21,6 @@ int PLAT_Init(int argc, char *argv[]) {
 
 	NET_Init();
 
-	/*
-	 * TODO: Detect RAM size, DOS version, etc
-	 */
-	DOS_GatherCPUInfo();
+	DOS_GatherInfo();
 	return 0;
 }

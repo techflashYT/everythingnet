@@ -9,6 +9,7 @@
 /* don't do anything if not on DOS */
 #ifdef CONFIG_PLAT_DOS
 
+extern int DOS_GatherInfo();
 extern void DOS_GatherCPUInfo();
 
 #endif
