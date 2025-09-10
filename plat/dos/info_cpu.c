@@ -18,7 +18,8 @@ enum cpuModels {
 	CPU_MODEL_386 = 0,
 	CPU_MODEL_486,
 	CPU_MODEL_PENTIUM,
-	CPU_MODEL_PPRO /* or higher */
+	CPU_MODEL_PENTIUM_MMX,
+	CPU_MODEL_PENTIUM_PRO /* or higher */
 };
 
 enum cpuTypes {
@@ -42,15 +43,17 @@ static jmp_buf env;
 
 const char *strsAMD[] = {
 	"AMD Am386",
-	"AMD Am486 or Am5x86",
-	"AMD K5?",
-	"AMD K6 or Later?",
+	"AMD Am486/Am5x86",
+	"AMD K5",
+	"AMD K6",
+	"AMD K7/Athlon or Later",
 };
 
 const char *strsIntel[] = {
 	"Intel 80386",
 	"Intel 80486",
-	"Intel Pentium or Pentium MMX",
+	"Intel Pentium",
+	"Intel Pentium MMX",
 	"Intel Pentium Pro or later",
 };
 
@@ -58,6 +61,7 @@ const char *strsIntelCompat[] = {
 	"Intel 80386 or compatible",
 	"Intel 80486 or compatible",
 	"Intel Pentium or compatible",
+	"Intel Pentium MMX or compatible",
 	"Intel Pentium Pro or later",
 };
 
@@ -87,12 +91,13 @@ static void sigillHandlerTest(int signo) {
 	return;
 }
 
-void DOS_GatherCPUInfo() {
+void DOS_GatherCPUInfo(void) {
 	enum cpuModels cpuModel = CPU_MODEL_386;
-	enum cpuTypes  cpuType  = CPU_TYPE_INTEL;
+	enum cpuTypes  cpuType  = CPU_TYPE_UNK;
 	union cpuidStr mfg;
-	uint32_t code = 1, eax = 0, ebx = 0, ecx = 0, edx = 0;
+	uint32_t code = 1, eax = 0, ebx = 0, ecx = 0, edx = 0, family, model, stepping;
 	void (*orig)(int); /* original handler */
+	(void)stepping;
 
 	mfg.u32.b = 0;
 	mfg.u32.d = 0;
@@ -127,8 +132,29 @@ void DOS_GatherCPUInfo() {
 	}
 
 	/* did not fault, parse it */
-	printf("CPUID: eax: 0x%08lX,  edx: 0x%08lX\n", eax, edx);
-	cpuModel = CPU_MODEL_PENTIUM; /* TODO: actually check */
+	/*printf("CPUID: eax: 0x%08lX,  edx: 0x%08lX\n", eax, edx);*/
+	family = (eax & 0x00000F00) >> 8;
+	model  = (eax & 0x000000F0) >> 4;
+	stepping  = (eax & 0x0000000F);
+	printf("Family %ld, model %ld, stepping %ld\n", family, model, stepping);
+	/* must be at least 486 */
+	cpuModel = CPU_MODEL_486;
+
+	/* Pentium? */
+	if (family == 5)
+		cpuModel = CPU_MODEL_PENTIUM;
+
+	/* PMMX? */
+	if (family == 5 && model == 4)
+		cpuModel = CPU_MODEL_PENTIUM_MMX;
+
+	/* AMD K6 (has MMX) */
+	if (family == 5 && model == 6)
+		cpuModel = CPU_MODEL_PENTIUM_MMX;
+
+	/* PPro (or better)? */
+	if (family >= 6)
+		cpuModel = CPU_MODEL_PENTIUM_PRO;
 
 	code = 0; /* get manufacturer info */
 	asm volatile(
@@ -138,7 +164,7 @@ void DOS_GatherCPUInfo() {
 	mfg.u32.b = ebx;
 	mfg.u32.d = edx;
 	mfg.u32.c = ecx;
-
+	
 	if (memcmp(mfg.str, "GenuineIntel", 12) == 0)
 		cpuType = CPU_TYPE_INTEL;
 	else if (memcmp(mfg.str, "AuthenticAMD", 12) == 0)
@@ -150,7 +176,7 @@ out:
 	/* restore SIGILL handler */
 	signal(SIGILL, orig);
 
-	printf("cpuModel: %d86\n", cpuModel + 3);
+	/*printf("cpuModel: %d86\n", cpuModel + 3);*/
 	switch (cpuType) {
 		case CPU_TYPE_INTEL: {
 			PLAT_Info.cpu = (char *)strsIntel[cpuModel];
