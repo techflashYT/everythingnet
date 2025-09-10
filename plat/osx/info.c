@@ -35,7 +35,7 @@ platInfo_t PLAT_Info = {
 		CAP_INPUT_ABS
 };
 
-int OSX_GatherInfo() {
+int OSX_GatherInfo(void) {
 	struct utsname utsname;
 	int ret, size, fd;
 	uint64_t ramBytes;

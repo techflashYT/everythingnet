@@ -4,6 +4,6 @@
  */
 
 #include <switch.h>
-void PLAT_FlushOutput() {
+void PLAT_FlushOutput(void) {
 	consoleUpdate(NULL);
 }

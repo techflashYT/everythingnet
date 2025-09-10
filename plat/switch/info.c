@@ -34,7 +34,7 @@ platInfo_t PLAT_Info = {
 		 CAP_INPUT_ABS
 };
 
-int SWITCH_GatherInfo() {
+int SWITCH_GatherInfo(void) {
 	uint64_t memSz;
 	SetSysFirmwareVersion hosVer;
 	SetSysProductModel model;

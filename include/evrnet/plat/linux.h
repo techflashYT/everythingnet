@@ -9,9 +9,9 @@
 /* don't do anything if not on linux */
 #ifdef CONFIG_PLAT_LINUX
 
-extern int LINUX_GatherInfo();
-extern int LINUX_GatherCPUInfo();
-extern int LINUX_GatherDeviceInfo();
+extern int LINUX_GatherInfo(void);
+extern int LINUX_GatherCPUInfo(void);
+extern int LINUX_GatherDeviceInfo(void);
 
 #endif
 

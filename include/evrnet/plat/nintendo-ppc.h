@@ -10,7 +10,7 @@
 #ifdef CONFIG_NINTENDO_PPC_COMMON
 #include <gccore.h>
 
-extern void NPPC_Init();
+extern void NPPC_Init(void);
 
 extern void *xfb;
 extern GXRModeObj *rmode;

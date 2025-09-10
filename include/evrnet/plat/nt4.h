@@ -9,7 +9,7 @@
 /* don't do anything if not on NT4 */
 #ifdef CONFIG_PLAT_NT4
 
-extern int NT4_GatherDeviceInfo();
+extern int NT4_GatherDeviceInfo(void);
 
 #endif
 

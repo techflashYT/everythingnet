@@ -13,7 +13,7 @@
 
 #include <evrnet/plat.h>
 
-int OSX_GatherCPUInfo() {
+int OSX_GatherCPUInfo(void) {
 #if defined(EVRNET_CPU_PPC32) || defined(EVRNET_CPU_PPC64)
 	/* TODO: How to detect 7447a, 970FX, 745/755, etc? */
 	uint32_t cpuFamily, cpuType, cpuSubType;

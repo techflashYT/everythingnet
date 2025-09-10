@@ -11,7 +11,7 @@
 #include <evrnet/plat.h>
 #include <evrnet/plat/linux_gfx.h>
 
-int LINUX_GfxInit() {
+int LINUX_GfxInit(void) {
 	int err;
 
 #ifdef CONFIG_GFX_WAYLAND

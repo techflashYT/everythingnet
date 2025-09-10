@@ -9,9 +9,9 @@
 /* don't do anything if not on OSX */
 #ifdef CONFIG_PLAT_OSX
 
-extern int OSX_GatherInfo();
-extern int OSX_GatherCPUInfo();
-extern int OSX_GatherDeviceInfo();
+extern int OSX_GatherInfo(void);
+extern int OSX_GatherCPUInfo(void);
+extern int OSX_GatherDeviceInfo(void);
 
 #endif
 

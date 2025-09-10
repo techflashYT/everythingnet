@@ -36,7 +36,7 @@ static int isGarbageName(const char *toCheck) {
 #include <sys/stat.h>
 #endif
 
-int LINUX_GatherDeviceInfo() {
+int LINUX_GatherDeviceInfo(void) {
 	int fd, ret;
 #if defined(EVRNET_CPU_X86) || defined(EVRNET_CPU_X86_64)
 	char scratchBuf[256];

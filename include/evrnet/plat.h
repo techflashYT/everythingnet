@@ -58,7 +58,7 @@ typedef struct {
 extern platInfo_t PLAT_Info;
 
 #ifdef CONFIG_PLAT_NEEDS_FLUSH_OUTPUT
-extern void PLAT_FlushOutput();
+extern void PLAT_FlushOutput(void);
 #else
 /* no-op */
 #define PLAT_FlushOutput() (void)0

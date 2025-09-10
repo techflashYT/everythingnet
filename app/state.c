@@ -8,7 +8,7 @@
 
 state_t G_State;
 
-void STATE_Init() {
+void STATE_Init(void) {
 	G_State.exitCallbacks.snd  = NULL;
 	G_State.exitCallbacks.gfx  = NULL;
 	G_State.exitCallbacks.plat = NULL;

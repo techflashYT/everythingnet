@@ -76,7 +76,7 @@ static int cpuinfoFindLine(const char* cpuinfo, char *out, const char *lineToFin
 	return -1;
 }
 
-int LINUX_GatherCPUInfo() {
+int LINUX_GatherCPUInfo(void) {
 	char *cpuInfo, *cpuName, *tmp;
 	int ret, fd;
 #if defined(EVRNET_CPU_ARM) || defined(EVRNET_CPU_AARCH64)

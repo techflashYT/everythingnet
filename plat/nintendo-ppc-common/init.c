@@ -13,7 +13,7 @@
 void *xfb = NULL;
 GXRModeObj *rmode = NULL;
 
-void NPPC_Init() {
+void NPPC_Init(void) {
 	/* Initialise the video system */
 	VIDEO_Init();
 

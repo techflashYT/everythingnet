@@ -24,19 +24,19 @@ typedef struct {
 		/*
 		 * Clean up and shut down anything platform-specific.
 		 */
-		void (*plat)();
+		void (*plat)(void);
 
 		/*
 		 * Clean up and shut down anything relating to the
 		 * graphics subsystem currently in use.
 		 */
-		void (*gfx)();
+		void (*gfx)(void);
 
 		/*
 		 * Clean up and shut down anything relating to the
 		 * audio subsystem currently in use.
 		 */
-		void (*snd)();
+		void (*snd)(void);
 
 		/*
 		 * Everything application specific, platform specific,
@@ -57,7 +57,7 @@ extern state_t G_State;
 /*
  * Initialize the global state.
  */
-extern void STATE_Init();
+extern void STATE_Init(void);
 
 /*
  * Clean up, shut everything down,

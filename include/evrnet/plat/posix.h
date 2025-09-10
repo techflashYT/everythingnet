@@ -6,6 +6,6 @@
 #ifndef _POSIX_H
 #define _POSIX_H
 
-extern int POSIX_NetInit();
+extern int POSIX_NetInit(void);
 
 #endif

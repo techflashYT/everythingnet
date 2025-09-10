@@ -18,14 +18,14 @@ static Display *dpy;
 static Window win;
 static GLXContext ctx;
 
-static void LINUX_GfxCleanupGLX() {
+static void LINUX_GfxCleanupGLX(void) {
 	glXMakeCurrent(dpy, None, NULL);
 	glXDestroyContext(dpy, ctx);
 	XDestroyWindow(dpy, win);
 	XCloseDisplay(dpy);
 }
 
-int LINUX_GfxInitXorgGLX() {
+int LINUX_GfxInitXorgGLX(void) {
 	int screen;
 	XVisualInfo *vi;
 	Window root;

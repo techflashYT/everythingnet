@@ -27,7 +27,7 @@ platInfo_t PLAT_Info = {
 		CAP_INPUT_ABS
 };
 
-int LINUX_GatherInfo() {
+int LINUX_GatherInfo(void) {
 	struct utsname utsname;
 	int ret;
 	FILE *fp;
