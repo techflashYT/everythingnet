@@ -12,7 +12,7 @@
 #include <evrnet/plat/linux_gfx.h>
 
 int LINUX_GfxInit(void) {
-	int err;
+	int err = GFX_FAIL;
 
 #ifdef CONFIG_GFX_WAYLAND
 	/* Try wayland with EGL first */
